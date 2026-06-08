@@ -1,0 +1,15 @@
+# Entorno virtual y dependencias
+venv/
+__pycache__/
+*.pyc
+
+# Logs y bases de datos locales
+logs/
+*.log
+data/
+chroma.sqlite3
+
+# Archivos de sistema y configuración sensible
+.env
+config/local_secrets.yaml
+.DS_Store
