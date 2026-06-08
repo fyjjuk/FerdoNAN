@@ -1,5 +1,24 @@
 llm:
   gemini:
-    api_key: ""
+    api_key: "AIzaSyDP4qDd-ci8cYE2kq_IJLdOgz8E2vIbbAE"
   groq:
-    api_key: ""
+    api_key: "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"
+
+router_mode: "local"
+
+firewall:
+  ingress:
+    layer1_regex:
+      enabled: true
+      blacklist_path: "config/ingress_blacklist.txt"
+    layer2_semantic:
+      enabled: false
+  egress:
+    default_enabled: false
+    blacklist_commands_path: "config/egress_cmd_blacklist.txt"
+    blacklist_tools_path: "config/egress_tools_blacklist.txt"
+
+pipeline:
+  gatekeeper:
+    default_timeout_seconds: 60
+    force_for_all_routes: false

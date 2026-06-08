@@ -1,0 +1,25 @@
+route_id: "stage_creative"
+type: "cognitive"
+description: "explicar conceptos complejos, definir términos, responder preguntas educativas, análisis detallado"
+stages:
+  - name: "analizar"
+    provider: "ollama"
+    model: "phi4-mini"
+    prompt: "Analiza esta consulta y extrae las 3 palabras clave más importantes: {user_input}"
+    system_prompt: "Eres un extractor de keywords. Devuelve solo las palabras clave separadas por comas, sin explicaciones."
+    output_key: "keywords"
+    timeout: 30
+  - name: "responder"
+    provider: "ollama"
+    model: "llama3.2:3b"
+    prompt: "Basado en estas keywords: {keywords}, responde de forma creativa y útil la consulta original: {user_input}"
+    system_prompt: "Eres un asistente creativo, conciso y útil."
+    output_key: "respuesta"
+    timeout: 45
+firewall:
+  stages:
+    analizar:
+      semantic_output_filter_enabled: false
+    responder:
+      egress_filter_enabled: false
+gatekeeper_required: false

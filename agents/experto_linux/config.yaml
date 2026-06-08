@@ -1,0 +1,12 @@
+id: "experto_linux"
+name: "Experto en Linux Fedora"
+description: "Especialista en administración del sistema, comandos de terminal, seguridad y optimización para Fedora Linux. Puede ayudar con actualizaciones, gestión de paquetes DNF, monitoreo de recursos, configuración de firewalld, SELinux y resolución de problemas del sistema."
+short_term_memory_window: 10
+execution_mode: "parallel"
+llm_provider:
+  name: "ollama"
+  model: "llama3.2:3b"
+  temperature: 0.5
+rag_config:
+  enabled: true
+  namespace: "linux_docs"

@@ -1,0 +1,16 @@
+id: "spotify_player"
+name: "Controlador de Spotify"
+description: "Controla Spotify: reproducir, pausar, siguiente, anterior, buscar canciones y playlists."
+short_term_memory_window: 8
+execution_mode: "parallel"
+llm_provider:
+  name: "ollama"
+  model: "llama3.2:3b"
+  temperature: 0.2
+rag_config:
+  enabled: false
+tools:
+  native:
+    - name: "spotify_control"
+      script: "tools/native/spotify_control.py"
+      enabled: true

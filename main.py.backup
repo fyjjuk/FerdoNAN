@@ -2,11 +2,6 @@ import os
 import sys
 import yaml
 from core.logger import logger
-import sys
-sys.modules['tqdm'] = __import__('tqdm')
-# Silenciar warnings de HF
-import warnings
-warnings.filterwarnings("ignore", category=UserWarning, module="huggingface_hub")
 from models.manifest import AgentManifest
 from core.engine import FerdoNANEngine
 from persistence.memory_store import ShortTermMemory
@@ -16,6 +11,7 @@ from security.ingress import IngressFilter
 from security.egress import EgressFilter
 from security.semantic_output import SemanticOutputFilter
 from ui.selector import select_agent_interactive
+
 def bootstrap_security_assets():
     if not os.path.exists("config"):
         os.makedirs("config")
@@ -30,6 +26,7 @@ def bootstrap_security_assets():
                 f.write(default_content)
             logger.info(f"Archivo de seguridad creado: {filepath}")
     return True
+
 def bootstrap_core():
     logger.info("Inicializando Núcleo de FerdoNAN...", extra={"component": "core"})
     bootstrap_security_assets()
@@ -45,13 +42,6 @@ def bootstrap_core():
     
     engine = FerdoNANEngine(ingress=ingress, egress=egress, semantic=semantic)
     engine.core_config = core_config
-    # Inicializar RAG Engine para indexación automática
-    from services.vector_store import RAGEngine
-    engine.rag_engine = RAGEngine()
- 
-    # Inicializar RAG Engine para indexación automática
-    from services.vector_store import RAGEngine
-    
     
     agents_dir = "agents"
     loaded = {}
@@ -69,23 +59,13 @@ def bootstrap_core():
                 manifest = AgentManifest(**data)
                 manifest.memory = ShortTermMemory(manifest.short_term_memory_window)
                 manifest.llm_client = engine._get_llm_client(agent_id, data, core_config)
-                # Indexar documentos de la carpeta docs/ del agente si existe
-                docs_dir = os.path.join(path, "docs")
-                if os.path.exists(docs_dir) and engine.rag_engine:
-                    for doc_file in os.listdir(docs_dir):
-                        if doc_file.endswith(('.txt', '.md', '.docx', '.xlsx')):
-                            file_path = os.path.join(docs_dir, doc_file)
-                            try:
-                                engine.rag_engine.process_and_index(agent_id, file_path)
-                                logger.info(f"Documento indexado: {doc_file} para agente {agent_id}")
-                            except Exception as e:
-                                logger.error(f"Error indexando {doc_file}: {e}")
                 loaded[agent_id] = manifest
                 logger.info(f"Agente {agent_id} cargado con éxito.", extra={"component": "core"})
             except Exception as e:
                 logger.error(f"Error cargando agente {agent_id}: {e}", extra={"component": "core"})
     
     return engine, loaded
+
 if __name__ == "__main__":
     engine, agents = bootstrap_core()
     generate_request_id()
@@ -107,7 +87,7 @@ if __name__ == "__main__":
         agent_manifest = select_agent(agents)
     
     print(f"[+] Agente Activo: {agent_manifest.name} ({agent_manifest.id})")
-    print(f"[+] Concurrencia: {agent_manifest.execution_mode}")
+    print(f"[+] Modo de ejecución: {agent_manifest.execution_mode}")
     print(f"[+] Proveedor LLM: {agent_manifest.llm_provider.get('name', 'desconocido')}")
     print("[+] Escribe 'salir' para finalizar.\n")
     

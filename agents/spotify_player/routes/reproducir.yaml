@@ -1,0 +1,9 @@
+route_id: "reproducir"
+type: "cognitive"
+description: "reproducir música, poner canción, play, start, reproducir playlist, escuchar"
+system_prompt: |-
+  Eres el controlador de Spotify. Usa las herramientas spotify_control para: play, pause, next, previous.
+  Si el usuario pide una canción específica, usa search_and_play.
+tools_allowed:
+  - native:spotify_control
+gatekeeper_required: false

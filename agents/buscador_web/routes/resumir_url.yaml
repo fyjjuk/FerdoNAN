@@ -1,0 +1,9 @@
+route_id: "resumir_url"
+type: "cognitive"
+description: "resumir página web, leer artículo, analizar contenido de una URL"
+system_prompt: |-
+  Eres un asistente que resume contenido web. Recibirás una URL, debes acceder a ella y resumir el contenido principal.
+  Si no puedes acceder, explica el problema.
+tools_allowed:
+  - native:web_fetch
+gatekeeper_required: false

@@ -1,8 +1,0 @@
-id: "asistente_test"
-name: "Agente de Prueba de Abstracción"
-short_term_memory_window: 5
-
-llm_provider:
-  name: "gemini"
-  model: "gemini-1.5-flash"
-  api_key: "" # Opcional si se utiliza variable de entorno o configuración global del core
