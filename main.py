@@ -80,7 +80,12 @@ def bootstrap_core():
     egress = EgressFilter("config/egress_cmd_blacklist.txt", "config/egress_tools_blacklist.txt")
     semantic = SemanticOutputFilter(default_enabled=False)
     
-    engine = FerdoNANEngine(ingress=ingress, egress=egress, semantic=semantic)
+    from security.gatekeeper import Gatekeeper
+    from persistence.cache import ResponseCache
+    gatekeeper = Gatekeeper(default_timeout=60, force_all=False)
+    cache = ResponseCache()
+    engine = FerdoNANEngine(ingress=ingress, egress=egress, semantic=semantic,
+                            gatekeeper=gatekeeper, cache=cache)
     engine.core_config = core_config
     # Inicializar RAG Engine para indexación automática
     from services.vector_store import RAGEngine

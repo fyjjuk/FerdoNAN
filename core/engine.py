@@ -14,14 +14,16 @@ from security.semantic_output import SemanticOutputFilter
 from persistence.cache import ResponseCache
 
 class FerdoNANEngine:
-    def __init__(self, ingress: IngressFilter, egress: EgressFilter, semantic: SemanticOutputFilter):
+    def __init__(self, ingress: IngressFilter, egress: EgressFilter, semantic: SemanticOutputFilter,
+                 gatekeeper=None, cache=None, rag_engine=None):
         self.ingress = ingress
         self.egress = egress
         self.semantic = semantic
         self.scheduler = ResourceScheduler()
-        self.cache = ResponseCache()
+        self.cache = cache if cache is not None else ResponseCache()
+        self.gatekeeper = gatekeeper  # puede ser None, se creará bajo demanda si es necesario
         self.core_config = {}
-        self.rag_engine = None
+        self.rag_engine = rag_engine
 
     def set_rag_engine(self, rag_engine):
         self.rag_engine = rag_engine
@@ -83,7 +85,8 @@ class FerdoNANEngine:
             from security.gatekeeper import Gatekeeper
             from core.tracing import get_request_id
             timeout = self.core_config.get("pipeline", {}).get("gatekeeper", {}).get("default_timeout_seconds", 60)
-            gk = Gatekeeper(default_timeout=timeout, force_all=force_gatekeeper)
+            # Usar gatekeeper inyectado o crear uno por defecto
+            gk = self.gatekeeper if self.gatekeeper is not None else Gatekeeper(default_timeout=timeout, force_all=force_gatekeeper)
             request_id = get_request_id() or "unknown"
             if not gk.verify(route_id, route_data, request_id):
                 raise PermissionError(f"Acción rechazada por Gatekeeper. Ruta: {route_id}")
