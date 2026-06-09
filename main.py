@@ -2,6 +2,7 @@ import os
 import sys
 import yaml
 from core.logger import logger
+from config.settings import settings
 import sys
 sys.modules['tqdm'] = __import__('tqdm')
 # Silenciar warnings de HF
@@ -22,8 +23,7 @@ def check_ollama():
     """Verifica que Ollama esté corriendo antes de iniciar."""
     import requests
     try:
-        ollama_host = os.environ.get("OLLAMA_HOST", "http://localhost:11434")
-        response = requests.get(f"{ollama_host}/api/tags", timeout=3)
+        response = requests.get(f"{settings.OLLAMA_HOST}/api/tags", timeout=3)
         if response.status_code == 200:
             print("\033[92m✅ Ollama está corriendo correctamente.\033[0m")
             return True
@@ -31,7 +31,7 @@ def check_ollama():
             print(f"\033[91m❌ Ollama responde con código {response.status_code}\033[0m")
             return False
     except requests.ConnectionError:
-        print("\033[91m❌ No se pudo conectar a Ollama en http://localhost:11434\033[0m")
+        print(f"\033[91m❌ No se pudo conectar a Ollama en {settings.OLLAMA_HOST}\033[0m")
         print("\033[93m   Asegúrate de ejecutar: ollama serve\033[0m")
         return False
     except Exception as e:
@@ -58,13 +58,11 @@ def bootstrap_security_assets():
 def bootstrap_core():
     from dotenv import load_dotenv
     load_dotenv()
-    load_dotenv()
     bootstrap_security_assets()
     
     core_config = {}
-    if os.path.exists("config/core.yaml"):
-        with open("config/core.yaml", "r", encoding="utf-8") as f:
-            core_config = yaml.safe_load(f) or {}
+    # Nota: La configuración YAML ha sido reemplazada por config.settings
+    # Si necesitas valores personalizados, edita .env o las variables de entorno
     
     # Verificar Ollama antes de continuar
     if not check_ollama():
@@ -76,23 +74,21 @@ def bootstrap_core():
         print("\033[93mContinuando sin Ollama...\033[0m")
 
     
-    ingress = IngressFilter(global_regex_path="config/ingress_blacklist.txt", enabled_layer2=False)
-    egress = EgressFilter("config/egress_cmd_blacklist.txt", "config/egress_tools_blacklist.txt")
+    ingress = IngressFilter(global_regex_path=settings.INGRESS_BLACKLIST_PATH, enabled_layer2=False)
+    egress = EgressFilter(settings.EGRESS_CMD_BLACKLIST_PATH, settings.EGRESS_TOOLS_BLACKLIST_PATH)
     semantic = SemanticOutputFilter(default_enabled=False)
     
     from security.gatekeeper import Gatekeeper
     from persistence.cache import ResponseCache
-    gatekeeper = Gatekeeper(default_timeout=60, force_all=False)
+    gatekeeper = Gatekeeper(default_timeout=settings.GATEKEEPER_TIMEOUT, force_all=settings.GATEKEEPER_FORCE_ALL)
     cache = ResponseCache()
     engine = FerdoNANEngine(ingress=ingress, egress=egress, semantic=semantic,
                             gatekeeper=gatekeeper, cache=cache)
     engine.core_config = core_config
+    
     # Inicializar RAG Engine para indexación automática
     from services.vector_store import RAGEngine
     engine.rag_engine = RAGEngine()
- 
-    # Inicializar RAG Engine para indexación automática
-    
     
     agents_dir = "agents"
     loaded = {}
@@ -123,6 +119,7 @@ def bootstrap_core():
                                 if route_data and "route_id" in route_data:
                                     routes_list.append(route_data)
                 manifest.routes_available = routes_list
+                
                 # Indexar documentos de la carpeta docs/ del agente si existe
                 docs_dir = os.path.join(path, "docs")
                 if os.path.exists(docs_dir) and engine.rag_engine:
@@ -143,6 +140,7 @@ def bootstrap_core():
                 logger.error(f"Error cargando agente {agent_id}: {e}", extra={"component": "core"})
     
     return engine, loaded
+
 if __name__ == "__main__":
     engine, agents = bootstrap_core()
     generate_request_id()
@@ -160,6 +158,7 @@ if __name__ == "__main__":
     except ImportError:
         # Fallback a selector numérico si prompt_toolkit no está instalado
         print("⚠️ prompt_toolkit no instalado. Usando selector numérico.")
+        from ui.selector import select_agent
         agent_manifest = select_agent(agents)
     
     print(f"[+] Agente Activo: {agent_manifest.name} ({agent_manifest.id})")

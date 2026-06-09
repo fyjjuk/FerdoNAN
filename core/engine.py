@@ -12,6 +12,7 @@ from security.ingress import IngressFilter
 from security.egress import EgressFilter
 from security.semantic_output import SemanticOutputFilter
 from persistence.cache import ResponseCache
+from config.settings import settings
 
 class FerdoNANEngine:
     def __init__(self, ingress: IngressFilter, egress: EgressFilter, semantic: SemanticOutputFilter,
@@ -79,12 +80,13 @@ class FerdoNANEngine:
 
         # === GATEKEEPER: Verificación humana para rutas críticas ===
         gatekeeper_required = route_data.get("gatekeeper_required", False)
-        force_gatekeeper = self.core_config.get("pipeline", {}).get("gatekeeper", {}).get("force_for_all_routes", False)
+        force_gatekeeper = self.core_config.get("pipeline", {}).get("gatekeeper", {}).get("force_for_all_routes", settings.GATEKEEPER_FORCE_ALL)
         
         if gatekeeper_required or force_gatekeeper:
             from security.gatekeeper import Gatekeeper
             from core.tracing import get_request_id
-            timeout = self.core_config.get("pipeline", {}).get("gatekeeper", {}).get("default_timeout_seconds", 60)
+            # Usar timeout de core_config o el de settings
+            timeout = self.core_config.get("pipeline", {}).get("gatekeeper", {}).get("default_timeout_seconds", settings.GATEKEEPER_TIMEOUT)
             # Usar gatekeeper inyectado o crear uno por defecto
             gk = self.gatekeeper if self.gatekeeper is not None else Gatekeeper(default_timeout=timeout, force_all=force_gatekeeper)
             request_id = get_request_id() or "unknown"
