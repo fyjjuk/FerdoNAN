@@ -2,7 +2,7 @@
 # Uso: ./copy_route.sh <nombre_ruta> <id_agente>
 # Ejemplo: ./copy_route.sh web_search mi_agente
 
-LIBRARY="route_library"
+LIBRARY="docs/route_templates"
 AGENTS_DIR="agents"
 
 if [ $# -ne 2 ]; then

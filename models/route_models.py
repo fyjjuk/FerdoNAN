@@ -16,14 +16,13 @@ class StageConfig(BaseModel):
     timeout: int = Field(default=30, ge=5, le=300)
     api_key: Optional[str] = None
     
-    @field_validator('model', mode='before')
-    def validate_model(cls, v, values):
-        """Validar modelo según el proveedor."""
-        provider = values.get('provider', 'ollama')
+    @field_validator('model')
+    def validate_model(cls, v, info):
+        provider = info.data.get('provider', 'ollama')
         if provider == 'ollama' and v and not v.startswith(('llama', 'phi', 'qwen', 'mistral')):
             # No bloqueamos, solo advertimos (por si hay modelos personalizados)
             pass
-        return v
+        return v if v else None
 
 class FirewallConfig(BaseModel):
     """Configuración de firewall por ruta."""
@@ -55,24 +54,23 @@ class RouteModel(BaseModel):
     # Override de modelo
     override_config: Optional[Dict[str, Any]] = None
     
-    @field_validator('stages', mode='before')
-    def validate_stages_consistency(cls, v, values):
-        """Validar consistencia entre stages y tipo."""
-        if v and values.get('type') != 'cognitive':
+    @field_validator('stages')
+    def validate_stages_consistency(cls, v, info):
+        if v and info.data.get('type') != 'cognitive':
             raise ValueError('Solo rutas cognitivas pueden tener stages')
         if v and len(v) > 5:
             raise ValueError('Máximo 5 stages por ruta')
-        return v
+        return v if v else None
     
     @field_validator('script_path', mode='before')
-    def validate_script_path(cls, v, values):
+    def validate_script_path(cls, v, info):
         """Validar script_path para rutas tipo script."""
-        if values.get('type') == 'script' and not v:
+        if info.data.get('type') == 'script' and not v:
             raise ValueError('Ruta tipo script requiere script_path')
-        return v
+        return v if v else None
     
     @field_validator('route_id', mode='before')
-    def validate_route_id(cls, v):
+    def validate_route_id(cls, v, info):
         """Validar formato de route_id."""
         if ' ' in v:
             raise ValueError('route_id no puede contener espacios')

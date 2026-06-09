@@ -1,7 +1,7 @@
 route_id: "control"
 type: "cognitive"
 description: "pausa, play, stop, siguiente, anterior, volumen, play pause, play/pause"
-model_config:
+override_config:
   provider: "ollama"
   model: "phi3:mini"
   temperature: 0.1
