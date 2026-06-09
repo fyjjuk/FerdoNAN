@@ -14,3 +14,7 @@ llm_provider:
     low:    { model: "phi4-mini", temperature: 0.5, max_tokens: 1024 }
 rag_config:
   enabled: false
+
+router_config:
+  mode: "keyword"
+  threshold: 0.3

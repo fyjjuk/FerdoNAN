@@ -14,48 +14,34 @@ chroma.sqlite3
 config/local_secrets.yaml
 .DS_Store
 
-# Backups y temporales
+# Backups y temporales (global)
 *.bak
+*.backup
+*.old
+*.orig
+*.swp
+*.swo
+*.tmp
+*.temp
 *.bak_*
 *.clean_backup
 *.dirty
 *.cleanup_backup
 *.fixed_backup
-*.tmp
 
 # Exportaciones del proyecto
 ferdonan_export.txt
 exportacion_completa.txt
 estructura.txt
 
+# Cachés y bases de datos locales
+*.sqlite3
+*.db
+cache/
+data/rag_storage/
+
 # Scripts de diagnóstico (mantener local, no subir)
 scripts/diagnostic/__pycache__/
 
-# Backups y temporales
-*.bak
-*.bak_*
-*.clean_backup
-*.dirty
-*.cleanup_backup
-*.fixed_backup
-*.tmp
-*.backup
-
-# Exportaciones
-ferdonan_export.txt
-exportacion_completa.txt
-
-# Bases de datos locales
-*.sqlite3
-*.db
-
-# Archivos de diagnóstico temporales
-scripts/diagnostic/__pycache__/
-
-# Entorno y cachés
-venv/
-__pycache__/
+# Entorno y cachés adicionales
 .pytest_cache/
-data/rag_storage/
-cache/
-logs/

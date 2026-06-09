@@ -21,3 +21,12 @@ tools:
     - name: "spotify_playlist"
       script: "tools/native/spotify_playlist.py"
       enabled: true
+
+router_config:
+  mode: "hybrid"
+  model: "phi3:mini"
+  threshold: 0.3
+
+sanitizer_config:
+  enabled: true
+  use_llm: false

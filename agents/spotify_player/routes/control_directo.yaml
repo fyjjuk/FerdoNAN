@@ -1,0 +1,5 @@
+route_id: "control_directo"
+type: "script"
+description: "play, pause, stop, next, previous, status"
+script_path: "tools/native/spotify_control.py"
+gatekeeper_required: false

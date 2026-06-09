@@ -10,6 +10,6 @@ def test_sanitizer_simple():
     assert result == "Hola!! cómo estás???" or "hola" in result.lower()
 
 def test_sanitizer_short():
-    s = Sanitizer(enabled=True, use_llm_threshold=50)
+    s = Sanitizer(enabled=True, )
     result = s.clean("hola")
     assert len(result) > 0

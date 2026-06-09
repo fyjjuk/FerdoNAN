@@ -1,16 +1,17 @@
 import re
 import logging
 from typing import Dict, Any
+from security.rate_limiter import RateLimiter
 
 logger = logging.getLogger("ferdonan.firewall.ingress")
 
 class IngressFilter:
     def __init__(self, global_regex_path: str, layer2_model_name: str = None, enabled_layer2: bool = False):
-        self.enabled_layer2 = enabled_layer2  # Desactivado por defecto
+        self.enabled_layer2 = enabled_layer2
         self.global_regex = self._load_regex_blacklist(global_regex_path)
         self.classifier = None
+        self.rate_limiter = RateLimiter(max_requests=100, window_seconds=60)
         
-        # Capa 2 desactivada para evitar errores de modelo
         if self.enabled_layer2:
             logger.warning("Capa 2 semántica no disponible - ejecutando solo con Capa 1 (RegEx)")
 
@@ -22,9 +23,23 @@ class IngressFilter:
             logger.error(f"Error cargando blacklist RegEx global: {str(e)}")
             return []
 
-    def evaluate(self, user_input: str, agent_manifest: Dict[str, Any]) -> bool:
+    def evaluate(self, user_input: str, agent_manifest) -> bool:
+        # Obtener ID del agente (puede ser objeto o dict por compatibilidad)
+        if hasattr(agent_manifest, 'id'):
+            user_id = agent_manifest.id
+            firewall_override = getattr(agent_manifest, 'firewall_override', {})
+        else:
+            # Fallback por si se pasa dict (compatibilidad)
+            user_id = agent_manifest.get("id", "default")
+            firewall_override = agent_manifest.get("firewall_override", {})
+        
+        # Rate limiting
+        if not self.rate_limiter.is_allowed(user_id):
+            logger.error(f"Rate limit excedido para {user_id}")
+            return False
+        
         # CAPA 1: RegEx Determinista
-        agent_blacklist = agent_manifest.get("firewall_override", {}).get("ingress", {}).get("layer1_regex", {}).get("blacklist", [])
+        agent_blacklist = firewall_override.get("ingress", {}).get("layer1_regex", {}).get("blacklist", [])
         full_blacklist = self.global_regex + agent_blacklist
 
         for pattern in full_blacklist:

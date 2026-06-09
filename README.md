@@ -88,7 +88,7 @@ llm_provider:
 - Logs en formato JSON con rotación
 - Métricas de tokens por consulta
 - Trazabilidad con `request_id`
-- Comando para ver logs en tiempo real: `./scripts/user/watch_logs.sh`
+- Comando para ver logs en tiempo real: `python scripts/user/logs_tail.py`
 
 ## Instalación y Configuración
 
@@ -132,7 +132,7 @@ El menú mostrará los agentes disponibles. Selecciona por número.
 python scripts/user/backup_cli.py crear
 
 # Ver logs en tiempo real
-./scripts/user/watch_logs.sh
+python scripts/user/logs_tail.py
 
 # Health check
 python scripts/diagnostic/check_health.py

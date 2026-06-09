@@ -1,8 +1,8 @@
 llm:
   gemini:
-    api_key: "AIzaSyDP4qDd-ci8cYE2kq_IJLdOgz8E2vIbbAE"
+    api_key: "${GOOGLE_API_KEY}"
   groq:
-    api_key: "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"
+    api_key: "${GROQ_API_KEY}"
 
 router_mode: "local"
 
@@ -14,7 +14,7 @@ firewall:
     layer2_semantic:
       enabled: false
   egress:
-    default_enabled: false
+    default_enabled: true
     blacklist_commands_path: "config/egress_cmd_blacklist.txt"
     blacklist_tools_path: "config/egress_tools_blacklist.txt"
 

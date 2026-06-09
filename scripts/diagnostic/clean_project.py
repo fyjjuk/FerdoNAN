@@ -1,8 +1,4 @@
 #!/usr/bin/env python3
-"""
-Limpia el proyecto de archivos temporales, backups y cachés innecesarios.
-Ejecutar con precaución: revisa la lista de archivos a eliminar antes de proceder.
-"""
 import os
 import shutil
 from pathlib import Path
@@ -29,22 +25,21 @@ def human_size(size):
 def main():
     root = Path(".")
     patterns = [
-        "*.bak", "*.bak_*", "*.clean_backup", "*.dirty",
+        "*.bak", "*.backup", "*.old", "*.orig", "*.swp", "*.swo",
         "*.pyc", "__pycache__",
         ".pytest_cache",
         "logs/*.log", "logs/*.log.*",
         "cache/*.json",
         "data/rag_storage/chroma.sqlite3",
         "data/*.json",
-        "ferdonan_export.txt",
-        "exportacion_completa.txt",
+        "ferdonan_export.txt", "exportacion_completa.txt", "estructura.txt",
+        "*.tmp", "*.temp"
     ]
     
     to_delete = []
     total_size = 0
     
     print("🔍 Buscando archivos temporales y backups...\n")
-    
     for pattern in patterns:
         for path in root.glob(f"**/{pattern}"):
             if path.exists():
@@ -60,7 +55,6 @@ def main():
     print(f"\n📦 Total a liberar: {human_size(total_size)}")
     print("\n⚠️  ¿Eliminar estos archivos? (s/N): ", end="")
     confirm = input().strip().lower()
-    
     if confirm == 's':
         for path, _ in to_delete:
             if path.is_file():

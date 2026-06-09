@@ -17,18 +17,24 @@ class BackupManager:
         backup_name = name or f"ferdonan_backup_{timestamp}"
         backup_path = self.backup_dir / f"{backup_name}.tar.gz"
         
-        # Directorios y archivos a respaldar
+        # Directorios y archivos a respaldar (estructura modular completa)
         items_to_backup = [
             "agents",
             "config",
-            "tools",
-            "mcp_servers",
-            "modules",
             "core",
-            "ui",
+            "models",
+            "modules",
+            "orchestration",
+            "persistence",
             "scripts",
+            "security",
+            "services",
+            "tests",
+            "tools",
+            "ui",
             "main.py",
-            "requirements.txt"
+            "requirements.txt",
+            "README.md"
         ]
         
         with tarfile.open(backup_path, "w:gz") as tar:
@@ -41,7 +47,7 @@ class BackupManager:
                 "backup_name": backup_name,
                 "timestamp": timestamp,
                 "items": items_to_backup,
-                "version": "1.0"
+                "version": "2.0"  # versión modular
             }
             metadata_str = json.dumps(metadata, indent=2)
             tarinfo = tarfile.TarInfo(name="backup_metadata.json")

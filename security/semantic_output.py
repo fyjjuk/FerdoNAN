@@ -28,13 +28,13 @@ class SemanticOutputFilter:
         if not enabled:
             return response_text
 
+        # FAIL-CLOSED: Si el clasificador no está disponible, bloqueamos
         if self.classifier is None:
-            # Comportamiento ante fallos: Registra WARN y permite la salida (Fail-Open controlado)
-            logger.warning("Filtro Semántico de Usuario no disponible. Omitiendo verificación.", extra={
+            logger.error("Filtro Semántico no disponible. Bloqueando salida por seguridad (fail-closed).", extra={
                 "firewall_component": "semantic_output",
-                "action": "passed"
+                "action": "blocked"
             })
-            return response_text
+            return self.blocked_message
 
         try:
             prediction = self.classifier(response_text)[0]
@@ -45,6 +45,11 @@ class SemanticOutputFilter:
                 })
                 return self.blocked_message
         except Exception as e:
-            logger.warning(f"Error en inferencia de Filtro Semántico: {str(e)}. Permitiendo salida por política Fail-Open.")
-            
+            # FAIL-CLOSED: Ante cualquier error de inferencia, bloqueamos
+            logger.error(f"Error en inferencia de Filtro Semántico: {str(e)}. Bloqueando salida por seguridad (fail-closed).", extra={
+                "firewall_component": "semantic_output",
+                "action": "blocked"
+            })
+            return self.blocked_message
+        
         return response_text

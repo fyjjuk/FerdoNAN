@@ -1,12 +1,13 @@
 id: "spotify_player"
 name: "Controlador de Spotify"
-description: "Controla Spotify: reproducir, pausar, siguiente, anterior, buscar canciones y playlists."
-short_term_memory_window: 8
+description: "Controla Spotify: reproducir, pausar, siguiente, anterior."
+short_term_memory_window: 4
 execution_mode: "parallel"
 llm_provider:
   name: "ollama"
-  model: "llama3.2:3b"
-  temperature: 0.2
+  model: "phi3:mini"
+  temperature: 0.1
+  max_tokens: 50
 rag_config:
   enabled: false
 tools:
@@ -14,3 +15,7 @@ tools:
     - name: "spotify_control"
       script: "tools/native/spotify_control.py"
       enabled: true
+
+router_config:
+  mode: "keyword"
+  threshold: 0.4

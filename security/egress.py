@@ -17,12 +17,41 @@ class EgressFilter:
             logger.error(f"Error cargando archivo de políticas Egress ({path}): {str(e)}")
             return []
 
+    def _is_egress_enabled(self, route_config: Dict[str, Any]) -> bool:
+        """
+        Determina si el filtro egress está habilitado para esta ruta.
+        Busca en:
+        1. route_config.firewall.egress_filter_enabled (global)
+        2. route_config.firewall.stages.*.egress_filter_enabled (cualquier stage)
+        """
+        # Verificar nivel global
+        firewall = route_config.get("firewall", {})
+        if firewall.get("egress_filter_enabled", False):
+            return True
+        
+        # Verificar en stages
+        stages = route_config.get("stages", [])
+        for stage in stages:
+            stage_firewall = stage.get("firewall", {})
+            if stage_firewall.get("egress_filter_enabled", False):
+                logger.info(f"Egress filter habilitado por stage: {stage.get('name', 'unknown')}")
+                return True
+        
+        # Verificar en firewall.stages (formato antiguo anidado)
+        stages_firewall = firewall.get("stages", {})
+        for stage_name, stage_firewall_config in stages_firewall.items():
+            if stage_firewall_config.get("egress_filter_enabled", False):
+                logger.info(f"Egress filter habilitado por stage (formato antiguo): {stage_name}")
+                return True
+        
+        return False
+
     def evaluate(self, output_content: str, route_config: Dict[str, Any]) -> bool:
         """
         Evaluación puramente determinista orientada al proceso.
-        Regla de negocio #17: Activable por campo egress_filter_enabled en el archivo de ruta.
+        Activable por campo egress_filter_enabled en la ruta o en cualquier stage.
         """
-        if not route_config.get("firewall", {}).get("egress_filter_enabled", False):
+        if not self._is_egress_enabled(route_config):
             return True
 
         # Validar comandos peligrosos en scripts o texto generado

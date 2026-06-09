@@ -6,18 +6,19 @@ from core.logger import logger
 
 class MCPClient:
     def __init__(self):
-        self.server_path = "mcp_servers/" # Directorio donde residen los servidores
+        # Usar ruta absoluta relativa al archivo
+        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        self.server_path = os.path.join(base_dir, "mcp_servers")
 
     def call_tool(self, server_name: str, tool_name: str, arguments: dict):
         start_time = time.perf_counter()
         try:
-            # Ahora busca scripts en mcp_servers/ o intenta ejecutar como módulo
-            cmd = ["python", "-m", f"mcp_server_{server_name}"]
-            if not subprocess.run(["python", "-c", f"import mcp_server_{server_name}"], capture_output=True).returncode == 0:
-                cmd = ["python", f"{self.server_path}/mcp_server_{server_name}.py"]
+            script_path = os.path.join(self.server_path, f"mcp_server_{server_name}.py")
+            if not os.path.exists(script_path):
+                return {"error": f"Servidor MCP no encontrado: {script_path}"}
 
             process = subprocess.run(
-                cmd + [tool_name, json.dumps(arguments)],
+                ["python", script_path, tool_name, json.dumps(arguments)],
                 capture_output=True, text=True, timeout=30
             )
             success = process.returncode == 0
