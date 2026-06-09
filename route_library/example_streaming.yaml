@@ -1,0 +1,6 @@
+route_id: "test_simple"
+type: "cognitive"
+description: "saludos, hola, estado, consultas muy breves, respuestas simples"
+system_prompt: "Eres un asistente de pruebas. Responde de forma breve y útil."
+stream: true
+gatekeeper_required: false

@@ -1,0 +1,5 @@
+route_id: "comandos_basicos"
+type: "cognitive"
+description: "comandos basicos de linux, terminal, bash, dnf, fedora, administracion del sistema"
+system_prompt: "Eres un experto en sistemas Linux (Fedora). Responde con comandos precisos y explicaciones breves. Incluye ejemplos cuando sea útil."
+gatekeeper_required: false

@@ -1,6 +1,6 @@
 route_id: "reproducir"
 type: "cognitive"
-description: "reproducir música, poner canción, play, start, reproducir playlist, escuchar"
+description: "reproducir música, poner canción, play, start, reproducir playlist, escuchar. Usa action=play"
 system_prompt: |-
   Eres el controlador de Spotify. Usa las herramientas spotify_control para: play, pause, next, previous.
   Si el usuario pide una canción específica, usa search_and_play.

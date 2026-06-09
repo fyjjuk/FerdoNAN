@@ -22,7 +22,8 @@ def check_ollama():
     """Verifica que Ollama esté corriendo antes de iniciar."""
     import requests
     try:
-        response = requests.get("http://localhost:11434/api/tags", timeout=3)
+        ollama_host = os.environ.get("OLLAMA_HOST", "http://localhost:11434")
+        response = requests.get(f"{ollama_host}/api/tags", timeout=3)
         if response.status_code == 200:
             print("\033[92m✅ Ollama está corriendo correctamente.\033[0m")
             return True

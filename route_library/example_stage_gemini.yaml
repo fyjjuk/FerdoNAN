@@ -1,0 +1,25 @@
+route_id: "stage_gemini"
+type: "cognitive"
+description: "planificación creativa, ideas para historias, brainstorming, generación de contenido elaborado, usar Gemini"
+stages:
+  - name: "planificar"
+    provider: "ollama"
+    model: "phi4-mini"
+    prompt: "Analiza la consulta y genera un esquema de respuesta de 3 puntos: {user_input}"
+    system_prompt: "Eres un planificador. Devuelve solo 3 puntos clave en formato lista."
+    output_key: "esquema"
+    timeout: 30
+  - name: "embellecer"
+    provider: "gemini"
+    model: "gemini-1.5-flash"
+    prompt: "Toma este esquema: {esquema}. Desarrolla una respuesta detallada, creativa y bien redactada para la consulta: {user_input}"
+    system_prompt: "Eres un experto en comunicación que redacta respuestas claras y atractivas."
+    output_key: "respuesta"
+    timeout: 60
+firewall:
+  stages:
+    planificar:
+      semantic_output_filter_enabled: false
+    embellecer:
+      egress_filter_enabled: false
+gatekeeper_required: false

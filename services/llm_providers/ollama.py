@@ -1,3 +1,4 @@
+import os
 import requests
 import json
 import time
@@ -7,7 +8,7 @@ from core.logger import logger
 class OllamaClient(LLMClient):
     def generate_response(self, prompt: str, system_prompt: str, config: dict, stream: bool = True) -> str:
         model = config.get("model", "phi3:mini")
-        url = "http://localhost:11434/api/generate"
+        url = os.environ.get("OLLAMA_HOST", "http://localhost:11434") + "/api/generate"
         timeout = config.get("timeout", 30)
         payload = {
             "model": model,

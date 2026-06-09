@@ -1,0 +1,10 @@
+route_id: "buscar"
+type: "cognitive"
+description: "buscar en internet, buscar información, consultar web, buscar noticias, buscar precios, buscar productos"
+system_prompt: |-
+  Eres un asistente de búsqueda web. Cuando el usuario pida información, usa la herramienta web_search con la consulta adecuada.
+  Resume los resultados de forma clara y cita las fuentes.
+# Necesita la herramienta web_search (tools/native/web_search.py)
+tools_allowed:
+  - native:web_search
+gatekeeper_required: false

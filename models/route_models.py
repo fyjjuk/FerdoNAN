@@ -1,5 +1,5 @@
 """Modelos de validación para rutas de agentes."""
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator, ConfigDict
 from typing import Optional, List, Dict, Any, Literal
 from datetime import datetime
 
@@ -16,7 +16,7 @@ class StageConfig(BaseModel):
     timeout: int = Field(default=30, ge=5, le=300)
     api_key: Optional[str] = None
     
-    @validator('model')
+    @field_validator('model', mode='before')
     def validate_model(cls, v, values):
         """Validar modelo según el proveedor."""
         provider = values.get('provider', 'ollama')
@@ -55,7 +55,7 @@ class RouteModel(BaseModel):
     # Override de modelo
     override_config: Optional[Dict[str, Any]] = None
     
-    @validator('stages')
+    @field_validator('stages', mode='before')
     def validate_stages_consistency(cls, v, values):
         """Validar consistencia entre stages y tipo."""
         if v and values.get('type') != 'cognitive':
@@ -64,22 +64,21 @@ class RouteModel(BaseModel):
             raise ValueError('Máximo 5 stages por ruta')
         return v
     
-    @validator('script_path')
+    @field_validator('script_path', mode='before')
     def validate_script_path(cls, v, values):
         """Validar script_path para rutas tipo script."""
         if values.get('type') == 'script' and not v:
             raise ValueError('Ruta tipo script requiere script_path')
         return v
     
-    @validator('route_id')
+    @field_validator('route_id', mode='before')
     def validate_route_id(cls, v):
         """Validar formato de route_id."""
         if ' ' in v:
             raise ValueError('route_id no puede contener espacios')
         return v.lower()
     
-    class Config:
-        extra = 'forbid'  # No permitir campos extras
+    model_config = ConfigDict(extra='forbid')
 
 def validate_route(route_data: Dict[str, Any]) -> tuple[bool, Optional[RouteModel], List[str]]:
     """
