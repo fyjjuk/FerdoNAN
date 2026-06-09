@@ -45,3 +45,5 @@ scripts/diagnostic/__pycache__/
 
 # Entorno y cachés adicionales
 .pytest_cache/
+backups/
+patches/
