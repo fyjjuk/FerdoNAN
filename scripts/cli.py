@@ -117,7 +117,7 @@ def audit():
         click.echo("❌ audit_full.py no encontrado")
 
 # ------------------------------------------------------------
-# Comandos adicionales útiles
+# Tests
 # ------------------------------------------------------------
 @cli.command()
 def test():
@@ -125,6 +125,20 @@ def test():
     result = subprocess.run(["pytest", "tests/", "-v"])
     sys.exit(result.returncode)
 
+@cli.command()
+def test_security():
+    """Ejecutar tests de estrés de firewalls."""
+    subprocess.run(["pytest", "tests/test_firewall_stress.py", "-v"])
+
+@cli.command()
+def test_all():
+    """Ejecutar todos los tests (unidad + estrés)."""
+    result = subprocess.run(["pytest", "tests/", "-v", "--tb=short"])
+    sys.exit(result.returncode)
+
+# ------------------------------------------------------------
+# Aplicaciones principales
+# ------------------------------------------------------------
 @cli.command()
 def dashboard():
     """Iniciar el dashboard web (puerto 8000)."""
@@ -135,11 +149,32 @@ def run():
     """Ejecutar el asistente principal (main.py)."""
     subprocess.run([sys.executable, "main.py"])
 
+# ------------------------------------------------------------
+# Repomix (empaquetado para IA)
+# ------------------------------------------------------------
 @cli.command()
-def test_security():
-    """Ejecutar tests de estrés de firewalls."""
-    subprocess.run(["pytest", "tests/test_firewall_stress.py", "-v"])
+def repomix():
+    """Empaquetar proyecto con Repomix (usando npx, formato XML por defecto)."""
+    subprocess.run(["npx", "repomix"])
 
+@cli.command()
+def repomix_stats():
+    """Mostrar estadísticas de tokens del proyecto."""
+    subprocess.run(["npx", "repomix", "--token-count-tree"])
 
+@cli.command()
+def repomix_config():
+    """Empaquetar con configuración personalizada (repomix.config.json)."""
+    subprocess.run(["npx", "repomix", "--config", "repomix.config.json"])
+
+@cli.command()
+def repomix_remote():
+    """Empaquetar repositorio remoto (GitHub)."""
+    repo = click.prompt("URL del repositorio GitHub", type=str)
+    subprocess.run(["npx", "repomix", "--remote", repo])
+
+# ------------------------------------------------------------
+# Punto de entrada
+# ------------------------------------------------------------
 if __name__ == "__main__":
     cli()
