@@ -212,3 +212,38 @@ __all__ = [
     'BaseCache',
     'BaseGatekeeper',
 ]
+
+# ============================================================================
+# UI Renderer (Desacoplado)
+# ============================================================================
+
+class UIRendererInterface(Protocol):
+    """Interfaz para el renderizador de UI (consola, web, etc.)"""
+    
+    def render_info(self, message: str, **kwargs) -> str:
+        """Renderiza mensaje informativo."""
+        ...
+    
+    def render_success(self, message: str, **kwargs) -> str:
+        """Renderiza mensaje de éxito."""
+        ...
+    
+    def render_error(self, message: str, **kwargs) -> str:
+        """Renderiza mensaje de error."""
+        ...
+    
+    def render_warning(self, message: str, **kwargs) -> str:
+        """Renderiza mensaje de advertencia."""
+        ...
+    
+    def render_badge(self, text: str, style: str = "default", **kwargs) -> str:
+        """Renderiza un badge estilizado."""
+        ...
+    
+    def render_table(self, headers: list, rows: list, **kwargs) -> str:
+        """Renderiza una tabla."""
+        ...
+    
+    def render_progress(self, current: int, total: int, **kwargs) -> str:
+        """Renderiza barra de progreso."""
+        ...

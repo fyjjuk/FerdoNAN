@@ -82,7 +82,7 @@ def bootstrap_core():
     
     from security.auth.gatekeeper import Gatekeeper
     from persistence.cache import ResponseCache
-    gatekeeper = Gatekeeper(default_timeout=settings.GATEKEEPER_TIMEOUT, force_all=settings.GATEKEEPER_FORCE_ALL)
+    gatekeeper = Gatekeeper(default_timeout=settings.GATEKEEPER_TIMEOUT, force_all=settings.GATEKEEPER_FORCE_ALL, ui_renderer=ui_renderer)
     cache = ResponseCache()
     engine = FerdoNANEngine(ingress=ingress, egress=egress, semantic=semantic,
                             gatekeeper=gatekeeper, cache=cache)
