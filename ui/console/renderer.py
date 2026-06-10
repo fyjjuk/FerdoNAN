@@ -133,3 +133,26 @@ class ConsoleRenderer:
     def render_prompt(self, message: str, **kwargs) -> str:
         """Render a user prompt."""
         return self.render_info(message, icon="🤔")
+
+    # Integración con ASCII Studio
+    def render_box(self, content: List[str], title: str = "", style: str = "single") -> str:
+        """Renderiza contenido en una caja ASCII."""
+        from ui.ascii.components import Box
+        return Box.draw(title=title, content=content, style=style)
+    
+    def render_banner(self, style: str = "default") -> str:
+        """Renderiza banner ASCII."""
+        from ui.ascii.banners import Banners
+        return Banners.get_banner(style)
+    
+    def render_table_ascii(self, headers: List[str], rows: List[List[str]]) -> str:
+        """Renderiza tabla en formato ASCII."""
+        from ui.ascii.components import Table
+        return Table.draw(headers, rows)
+    
+    def render_startup_banner(self) -> None:
+        """Muestra banner de inicio."""
+        banner = self.render_banner("minimal")
+        print(f"\n{banner}")
+        print(self.render_info("Bienvenido a FerdoNAN v2.4.0"))
+        print(self.render_info("Use /help para ver comandos disponibles\n"))
