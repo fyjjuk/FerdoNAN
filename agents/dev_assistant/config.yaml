@@ -1,0 +1,30 @@
+id: "dev_assistant"
+name: "Developer Assistant"
+description: "Agente especializado en desarrollo de software, integración con GitHub, revisión de código y generación de especificaciones."
+short_term_memory_window: 10
+execution_mode: "parallel"
+llm_provider:
+  name: "ollama"
+  model: "llama3.2:3b"
+  temperature: 0.3
+  max_tokens: 4096
+rag_config:
+  enabled: true
+  namespace: "dev_docs"
+  top_k: 5
+  similarity_threshold: 0.7
+tools:
+  native:
+    - name: "github_repo"
+      script: "tools/native/github_tool.py"
+      enabled: true
+    - name: "code_review"
+      script: "tools/native/code_review.py"
+      enabled: true
+router_config:
+  mode: "hybrid"
+  model: "phi3:mini"
+  threshold: 0.3
+sanitizer_config:
+  enabled: true
+  use_llm: false
