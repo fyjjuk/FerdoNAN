@@ -16,6 +16,7 @@ from core.tracing import generate_request_id
 from services.router.intent_router import RouteNotFoundError
 from security.filters.ingress import IngressFilter
 from core.llm_factory import create_llm_client
+from core.i18n import t, Localization
 from security.filters.egress import EgressFilter
 from security.filters.semantic import SemanticOutputFilter
 from ui.selector import select_agent_interactive

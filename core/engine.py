@@ -21,7 +21,10 @@ class FerdoNANEngine:
     def set_rag_engine(self, rag_engine):
         self.rag_engine = rag_engine
 
-    def process_pipeline(self, agent_manifest, raw_input: str) -> Tuple[str, Dict[str, Any]]:
+    def process_pipeline(self, agent_manifest, raw_input: str, core_config: dict = None) -> Tuple[str, Dict[str, Any]]:
+        # Usar core_config pasado como parámetro o el del engine
+        if core_config is None:
+            core_config = self.core_config
         return run_pipeline(
             agent_manifest=agent_manifest,
             raw_input=raw_input,
@@ -31,5 +34,5 @@ class FerdoNANEngine:
             gatekeeper=self.gatekeeper,
             cache=self.cache,
             rag_engine=self.rag_engine,
-            core_config=self.core_config
+            core_config=core_config
         )
