@@ -41,6 +41,9 @@ def check_ollama():
         return False
 
 def bootstrap_security_assets():
+    # Inicializar UI Renderer
+    from ui import ConsoleRenderer
+    ui_renderer = ConsoleRenderer(theme_name=os.environ.get("FERDONAN_THEME", "refero"))
     from dotenv import load_dotenv
     load_dotenv()
     if not os.path.exists("config"):
@@ -61,6 +64,9 @@ def bootstrap_core():
     from dotenv import load_dotenv
     load_dotenv()
     bootstrap_security_assets()
+    # Inicializar UI Renderer
+    from ui import ConsoleRenderer
+    ui_renderer = ConsoleRenderer(theme_name=os.environ.get("FERDONAN_THEME", "refero"))
     
     core_config = {}
     # Nota: La configuración YAML ha sido reemplazada por config.settings
@@ -85,7 +91,7 @@ def bootstrap_core():
     gatekeeper = Gatekeeper(default_timeout=settings.GATEKEEPER_TIMEOUT, force_all=settings.GATEKEEPER_FORCE_ALL, ui_renderer=ui_renderer)
     cache = ResponseCache()
     engine = FerdoNANEngine(ingress=ingress, egress=egress, semantic=semantic,
-                            gatekeeper=gatekeeper, cache=cache)
+                            gatekeeper=gatekeeper, cache=cache, ui_renderer=ui_renderer)
     engine.core_config = core_config
     
     # Inicializar RAG Engine para indexación automática
@@ -196,3 +202,29 @@ if __name__ == "__main__":
         except Exception as e:
             print(f"[-] Error: {e}")
             logger.error(f"Error en pipeline: {e}", extra={"component": "main"})
+
+def select_agent(agents):
+    """Selecciona un agente de forma numérica (fallback si no hay prompt_toolkit)."""
+    agent_list = list(agents.values())
+    print("\n" + "=" * 60)
+    print("🎮 SELECCIÓN DE AGENTE")
+    print("=" * 60)
+    for i, agent in enumerate(agent_list, 1):
+        print(f"  {i}. {agent.name} (ID: {agent.id})")
+    print("  0. Salir")
+    print("=" * 60)
+    
+    while True:
+        try:
+            choice = input("\n👉 Elige un número: ").strip()
+            if choice == "0":
+                return None
+            idx = int(choice) - 1
+            if 0 <= idx < len(agent_list):
+                return agent_list[idx]
+            print(f"❌ Opción inválida. Elige entre 1 y {len(agent_list)}")
+        except ValueError:
+            print("❌ Por favor, ingresa un número válido")
+        except KeyboardInterrupt:
+            print("\n👋 Saliendo...")
+            return None

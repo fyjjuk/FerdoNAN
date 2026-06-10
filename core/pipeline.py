@@ -57,7 +57,7 @@ def run_pipeline(agent_manifest, raw_input: str,
         output = cached_output
     else:
         from services.executor.factory import create_executor
-        executor = create_executor(route_data)
+        executor = create_executor(route_data, agent_manifest)
         output = executor.execute(agent_manifest, route_data, cleaned_input, router, rag_engine)
         cache.set(agent_manifest.id, route_id, cleaned_input, output)
 

@@ -1,8 +1,0 @@
-route_id: "abrir"
-type: "cognitive"
-description: "abrir spotify, iniciar spotify, ejecutar spotify, lanzar spotify"
-system_prompt: |-
-  Usa la herramienta spotify_control con action='open' para abrir Spotify.
-tools_allowed:
-  - native:spotify_control
-gatekeeper_required: true

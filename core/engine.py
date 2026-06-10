@@ -8,7 +8,7 @@ from core.pipeline import run_pipeline
 
 class FerdoNANEngine:
     def __init__(self, ingress: IngressFilter, egress: EgressFilter, semantic: SemanticOutputFilter,
-                 gatekeeper=None, cache=None, rag_engine=None):
+                 gatekeeper=None, cache=None, rag_engine=None, ui_renderer=None):
         self.ingress = ingress
         self.egress = egress
         self.semantic = semantic
@@ -21,10 +21,8 @@ class FerdoNANEngine:
 
     def set_rag_engine(self, rag_engine):
         self.rag_engine = rag_engine
-        self.ui = ui_renderer
 
     def process_pipeline(self, agent_manifest, raw_input: str, core_config: dict = None) -> Tuple[str, Dict[str, Any]]:
-        # Usar core_config pasado como parámetro o el del engine
         if core_config is None:
             core_config = self.core_config
         return run_pipeline(
@@ -38,20 +36,3 @@ class FerdoNANEngine:
             rag_engine=self.rag_engine,
             core_config=core_config
         )
-
-    # Control de concurrencia
-    _semaphore = None
-    
-    @classmethod
-    def get_semaphore(cls, max_concurrent: int = 5):
-        """Obtiene o crea un semáforo para limitar concurrencia."""
-        if cls._semaphore is None:
-            import threading
-            cls._semaphore = threading.Semaphore(max_concurrent)
-        return cls._semaphore
-    
-    def execute_with_limit(self, func, *args, **kwargs):
-        """Ejecuta una función con límite de concurrencia."""
-        semaphore = self.get_semaphore()
-        with semaphore:
-            return func(*args, **kwargs)

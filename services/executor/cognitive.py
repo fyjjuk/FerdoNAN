@@ -95,6 +95,8 @@ class CognitiveExecutor:
         else:
             # Streaming no disponible o desactivado, usar método normal
             output = llm.generate_response(enhanced_prompt, system_prompt, llm_config)
+            output = self._parse_tool_call(output, agent_manifest, route_data.get("tools_allowed", []))
+            # Parsear tool calls
             return output
     
     def _stream_response(self, llm, prompt: str, system_prompt: str, llm_config: dict) -> str:
@@ -102,3 +104,74 @@ class CognitiveExecutor:
         Método legacy para compatibilidad
         """
         return StreamHandler.stream_response_legacy(llm, prompt, system_prompt, llm_config)
+
+    def _parse_tool_call(self, output: str, agent_manifest, tools_allowed: list) -> str:
+        """Detecta y ejecuta tool calls en formato <tool_call>..."""
+        import re
+        import subprocess
+        import json
+        import os
+        
+        # Buscar patrón <tool_call>spotify_search query="valor"</tool_call> o query=valor
+        patterns = [
+            r'<tool_call>(\w+)\s+query="([^"]+)"\s*</tool_call>',
+            r'<tool_call>(\w+)\s+query=([^\s>]+)\s*</tool_call>',
+        ]
+        match = None
+        for pattern in patterns:
+            match = re.search(pattern, output, re.IGNORECASE | re.DOTALL)
+            if match:
+                break
+        
+        if match:
+            tool_name = match.group(1)
+            query = match.group(2).strip()
+            
+            logger.info(f"Tool call detectado: {tool_name} query='{query}'")
+            
+            # Verificar que la herramienta está permitida
+            if tool_name in tools_allowed or f"native:{tool_name}" in tools_allowed:
+                # Buscar la herramienta en el agente
+                tool_script = None
+                for tool in agent_manifest.tools.get("native", []):
+                    if tool["name"] == tool_name:
+                        tool_script = tool["script"]
+                        break
+                
+                if tool_script:
+                    # Construir ruta absoluta
+                    agent_dir = os.path.join("agents", agent_manifest.id)
+                    full_path = os.path.join(agent_dir, tool_script)
+                    
+                    if not os.path.exists(full_path):
+                        full_path = os.path.join("tools", "native", os.path.basename(tool_script))
+                    
+                    if os.path.exists(full_path):
+                        try:
+                            args_str = json.dumps({"query": query})
+                            result = subprocess.run(
+                                ["python", full_path, args_str],
+                                capture_output=True,
+                                text=True,
+                                timeout=10
+                            )
+                            if result.returncode == 0:
+                                return result.stdout.strip()
+                            else:
+                                return f"Error: {result.stderr}"
+                        except Exception as e:
+                            return f"Error: {str(e)}"
+                    else:
+                        return f"Error: Herramienta no encontrada: {tool_script}"
+                else:
+                    return f"Error: Herramienta '{tool_name}' no configurada"
+            else:
+                return f"Error: Herramienta '{tool_name}' no permitida"
+        
+        return output
+        import logging
+        _logger = logging.getLogger("ferdonan.parser")
+        
+        _logger.info(f"PARSER: processing output: {output[:200]}")
+        _logger.info(f"PARSER: tools_allowed: {tools_allowed}")
+        _logger.info(f"PARSER: agent tools: {agent_manifest.tools.get('native', [])}")

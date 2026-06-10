@@ -1,0 +1,6 @@
+route_id: "pause"
+type: "script"
+description: "pause,pausar,stop,detener"
+script_path: "tools/native/spotify_control.py"
+script_args:
+  action: "pause"

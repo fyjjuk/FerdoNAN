@@ -11,18 +11,24 @@ class HybridRouter(BaseRouter):
         self.fallback_threshold = fallback_threshold
 
     def route(self, routes: List[Dict[str, Any]], user_input: str, threshold: Optional[float] = None) -> Tuple[str, float, Dict]:
-        # 1. Embedding
+        # 1. Intentar embedding primero
         route_id, score, route = self.embedding.route(routes, user_input)
-        if route_id:
+        
+        # 2. Si embedding encontró una ruta con alta confianza
+        if route_id and score >= self.embedding.threshold:
             logger.info(f"HybridRouter: embedding alta confianza: {route_id} (score={score:.2f})")
             return route_id, score, route
-        # 2. Si score es bajo pero no nulo, usar LLM
-        if score >= self.fallback_threshold:
-            logger.info(f"HybridRouter: embedding score medio ({score:.2f}), usando Ollama")
-            ollama_id, _, ollama_route = self.ollama.route(routes, user_input)
-            if ollama_id:
-                return ollama_id, 1.0, ollama_route
-        # 3. Fallback a embedding bajo (o primera ruta)
+        
+        # 3. Si embedding encontró algo pero con confianza baja, o no encontró nada
+        #    Usar Ollama como respaldo
+        logger.info(f"HybridRouter: embedding score={score:.2f}, usando Ollama")
+        ollama_id, ollama_score, ollama_route = self.ollama.route(routes, user_input)
+        
+        if ollama_id:
+            logger.info(f"HybridRouter: Ollama seleccionó: {ollama_id}")
+            return ollama_id, ollama_score, ollama_route
+        
+        # 4. Fallback final
         if route:
             return route_id, score, route
         return None, 0.0, None
