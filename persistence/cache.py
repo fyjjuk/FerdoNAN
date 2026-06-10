@@ -34,6 +34,42 @@ class ResponseCache:
         with open(cache_file, 'w') as f:
             json.dump({
                 'timestamp': time.time(),
-                'response': response
+                'response': response,
+                'agent_id': agent_id,
+                'route_id': route_id,
+                'prompt_hash': key
             }, f)
         logger.info(f"Cached response for {agent_id}/{route_id}")
+
+    def invalidate(self, agent_id: str, route_id: str = None):
+        """Invalida la caché para un agente o ruta específica."""
+        count = 0
+        for filename in os.listdir(self.cache_dir):
+            if not filename.endswith('.json'):
+                continue
+                
+            filepath = os.path.join(self.cache_dir, filename)
+            try:
+                with open(filepath, 'r') as f:
+                    data = json.load(f)
+                
+                if route_id:
+                    # Invalida ruta específica
+                    if data.get('agent_id') == agent_id and data.get('route_id') == route_id:
+                        os.remove(filepath)
+                        count += 1
+                        logger.info(f"Cache invalidated for {agent_id}/{route_id}")
+                else:
+                    # Invalida todo el agente
+                    if data.get('agent_id') == agent_id:
+                        os.remove(filepath)
+                        count += 1
+            except (json.JSONDecodeError, KeyError, OSError):
+                # Archivo corrupto, eliminarlo
+                os.remove(filepath)
+                count += 1
+        
+        if count > 0:
+            logger.info(f"Cache invalidated for agent {agent_id}: {count} entries removed")
+        else:
+            logger.info(f"No cache entries found for agent {agent_id}")
