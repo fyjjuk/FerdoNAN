@@ -36,3 +36,20 @@ class FerdoNANEngine:
             rag_engine=self.rag_engine,
             core_config=core_config
         )
+
+    # Control de concurrencia
+    _semaphore = None
+    
+    @classmethod
+    def get_semaphore(cls, max_concurrent: int = 5):
+        """Obtiene o crea un semáforo para limitar concurrencia."""
+        if cls._semaphore is None:
+            import threading
+            cls._semaphore = threading.Semaphore(max_concurrent)
+        return cls._semaphore
+    
+    def execute_with_limit(self, func, *args, **kwargs):
+        """Ejecuta una función con límite de concurrencia."""
+        semaphore = self.get_semaphore()
+        with semaphore:
+            return func(*args, **kwargs)

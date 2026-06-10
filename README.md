@@ -157,3 +157,9 @@ Por favor, abre un issue o pull request en GitHub.
 - [Repomix](https://github.com/yamadashy/repomix) - Empaquetado eficiente del código para IA
 - [ChromaDB](https://www.trychroma.com/) - Base de datos vectorial
 - [Sentence Transformers](https://www.sbert.net/) - Embeddings semánticos
+
+## ⚠️ Limitaciones Conocidas
+
+### Streaming
+Actualmente el streaming de respuestas solo está soportado para el proveedor **Ollama**. Gemini y Groq no implementan streaming nativo en esta versión.
+
