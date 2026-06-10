@@ -65,3 +65,20 @@ __all__ = [
     'sanitize_query',
     'generate_document_id'
 ]
+
+# Exportar parsers
+from .parsers.markitdown_parser import MarkItDownParser
+from .parsers.registry import parser_registry, register_parser
+
+__all__ = [
+    'RAGEngine',
+    'CollectionManager',
+    'IndexingService',
+    'QueryService',
+    'MarkItDownParser',
+    'parser_registry',
+    'register_parser',
+    'validate_agent_id',
+    'sanitize_query',
+    'generate_document_id'
+]
