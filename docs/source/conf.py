@@ -7,9 +7,9 @@
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = 'FerdoNAN'
-copyright = '2026, Fernando'
-author = 'Fernando'
-release = '2.3.0'
+copyright = '2026, FerdoNAN Team'
+author = 'FerdoNAN Team'
+release = '2.4.0'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -17,12 +17,13 @@ release = '2.3.0'
 extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.viewcode',
+    'sphinx.ext.todo',
 ]
 
 templates_path = ['_templates']
 exclude_patterns = []
 
-language = 'es'
+language = 'en'
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
@@ -30,34 +31,7 @@ language = 'es'
 html_theme = 'alabaster'
 html_static_path = ['_static']
 
-# Extensiones adicionales
-extensions.append('sphinx.ext.napoleon')
-extensions.append('myst_parser')
+# -- Options for todo extension ----------------------------------------------
+# https://www.sphinx-doc.org/en/master/usage/extensions/todo.html#configuration
 
-# Rutas de los módulos a documentar
-import sys
-import os
-sys.path.insert(0, os.path.abspath('../..'))
-
-# Mock de módulos problemáticos (evita errores de importación)
-autodoc_mock_imports = [
-    'chromadb',
-    'sentence_transformers',
-    'transformers',
-    'groq',
-    'google.generativeai',
-    'pythonjsonlogger',
-    'psutil',
-    'pandas',
-    'docx',
-]
-
-# Variable para evitar inicialización de logs durante la documentación
-os.environ['SPHINX_BUILD'] = '1'
-
-# Tema
-html_theme = 'sphinx_rtd_theme'
-html_static_path = ['_static']
-
-# Excluir directorios
-exclude_patterns = ['venv', 'backups', 'logs', 'data', 'patches', 'tests', 'scripts', 'tools/native', 'web/templates', 'mcp_servers']
+todo_include_todos = True
