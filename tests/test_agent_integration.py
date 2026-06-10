@@ -7,9 +7,10 @@ import pytest
 import yaml
 from models.manifest import AgentManifest
 from core.engine import FerdoNANEngine
-from security.ingress import IngressFilter
-from security.egress import EgressFilter
-from security.semantic_output import SemanticOutputFilter
+from core.llm_factory import create_llm_client
+from security.filters.ingress import IngressFilter
+from security.filters.egress import EgressFilter
+from security.filters.semantic import SemanticOutputFilter
 from persistence.memory_store import ShortTermMemory
 from persistence.long_term_memory import LongTermMemory
 from services.vector_store import RAGEngine
@@ -38,7 +39,7 @@ def agent_experto_linux(engine):
     manifest = AgentManifest(**data)
     manifest.memory = ShortTermMemory(manifest.short_term_memory_window)
     manifest.long_term_memory = LongTermMemory(manifest.id, engine.rag_engine)
-    manifest.llm_client = engine._get_llm_client(manifest.id, data, {})
+    manifest.llm_client = create_llm_client(manifest.id, data, {})
     return manifest
 
 @pytest.fixture
@@ -49,7 +50,7 @@ def agent_buscador_web(engine):
     manifest = AgentManifest(**data)
     manifest.memory = ShortTermMemory(manifest.short_term_memory_window)
     manifest.long_term_memory = LongTermMemory(manifest.id, engine.rag_engine)
-    manifest.llm_client = engine._get_llm_client(manifest.id, data, {})
+    manifest.llm_client = create_llm_client(manifest.id, data, {})
     return manifest
 
 def test_experto_linux_responde_comando(engine, agent_experto_linux):

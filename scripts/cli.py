@@ -178,3 +178,16 @@ def repomix_remote():
 # ------------------------------------------------------------
 if __name__ == "__main__":
     cli()
+
+@cli.command()
+def docs():
+    """Generar documentación automática con Sphinx."""
+    docs_dir = Path.cwd() / "docs"
+    if not (docs_dir / "source" / "conf.py").exists():
+        click.echo("❌ Sphinx no está configurado. Ejecuta 'sphinx-quickstart' primero.")
+        return
+    result = subprocess.run(["make", "html"], cwd=docs_dir)
+    if result.returncode == 0:
+        click.echo("✅ Documentación generada en docs/build/html/index.html")
+    else:
+        click.echo("❌ Error al generar documentación")

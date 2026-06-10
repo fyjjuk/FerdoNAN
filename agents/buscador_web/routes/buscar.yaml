@@ -6,4 +6,4 @@ system_prompt: |-
   Resume los resultados de forma clara y cita las fuentes.
 tools_allowed:
   - native:web_search
-gatekeeper_required: false
+gatekeeper_required: true

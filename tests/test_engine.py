@@ -6,9 +6,9 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import pytest
 from unittest.mock import Mock, patch
 from core.engine import FerdoNANEngine
-from security.ingress import IngressFilter
-from security.egress import EgressFilter
-from security.semantic_output import SemanticOutputFilter
+from security.filters.ingress import IngressFilter
+from security.filters.egress import EgressFilter
+from security.filters.semantic import SemanticOutputFilter
 
 
 class MockAgentManifest:
@@ -103,7 +103,7 @@ class TestFerdoNANEngine:
     @patch('core.engine.Sanitizer')
     def test_process_pipeline_route_not_found(self, mock_sanitizer, mock_router, engine):
         """Debe propagar RouteNotFoundError."""
-        from services.intent_router import RouteNotFoundError
+        from services.router.intent_router import RouteNotFoundError
         
         mock_router_instance = Mock()
         mock_router_instance.route.side_effect = RouteNotFoundError("No routes", [])

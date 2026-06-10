@@ -1,6 +1,6 @@
 # FerdoNAN - Asistente Personal con Agentes Especializados
 
-**Versión:** 2.3.0 (Dashboard, Métricas, Streaming, Memoria Larga Plazo, Biblioteca de Rutas)
+**Versión:** 2.4.0 (Refactorización arquitectónica, RAG modular, tests unitarios)
 **Estado:** Producción estable
 
 ## Descripción General
@@ -14,95 +14,138 @@ La forma más rápida de probar FerdoNAN sin instalar dependencias localmente.
 
 ### Pasos
 1. Clona el repositorio:
+```bash
    git clone https://github.com/fyjjuk/FerdoNAN
    cd FerdoNAN
-
+```
 2. Ejecuta la demo:
+```bash
    docker-compose -f docker-compose.demo.yml up
-
+```
 3. En otra terminal, descarga los modelos necesarios (solo la primera vez):
+```bash
    docker exec -it ferdonan-ollama ollama pull phi3:mini
    docker exec -it ferdonan-ollama ollama pull llama3.2:3b
-
-4. Una vez que la aplicación esté corriendo, accede al menú interactivo en la terminal donde se ejecutó docker-compose up.
+```
+4. Una vez que la aplicación esté corriendo, accede al menú interactivo en la terminal donde se ejecutó `docker-compose up`.
 5. (Opcional) Abre el dashboard en http://localhost:8000
-6. Para detenerlo: Ctrl+C y luego docker-compose down.
+6. Para detenerlo: `Ctrl+C` y luego `docker-compose down`.
 
-## 📦 Estructura del Proyecto
+## 📦 Estructura del Proyecto (Refactorizada v2.4)
+```text
 ferdonan/
 ├── agents/              # Agentes especializados (cada uno con config.yaml y routes/)
-├── core/                # Motor principal (engine, logger, tracing)
-├── services/            # LLM providers, sanitizador, router, RAG, MCP client
-├── security/            # Firewalls (ingress, egress, semántico) y gatekeeper
-├── orchestration/       # Gestor de recursos (paralelismo, perfiles dinámicos)
-├── persistence/         # Memoria a corto y largo plazo, backups, caché de respuestas
-├── models/              # Modelos de datos (manifest, route_models)
-├── scripts/             # Utilidades de usuario y diagnóstico
-├── tests/               # Pruebas unitarias
-├── ui/                  # Selector interactivo de agentes
-├── tools/               # Herramientas nativas (web_search, spotify_control, etc.)
-├── web/                 # Dashboard web (FastAPI, WebSockets)
+├── core/                # Motor principal (modularizado)
+│   ├── engine.py        # Estado e inicialización (35L)
+│   ├── pipeline.py      # Lógica del pipeline de procesamiento
+│   ├── factory.py       # Creación de router y sanitizer
+│   └── llm_factory.py   # Creación de clientes LLM
+├── security/            # Firewalls y seguridad (organizado por capas)
+│   ├── filters/         # Ingress, egress, semantic
+│   ├── auth/            # Gatekeeper, audit
+│   └── rate_limiter.py
+├── services/            # Servicios core (modularizados)
+│   ├── executor/        # Ejecutores de rutas
+│   │   ├── cognitive.py # Orquestación (95L)
+│   │   ├── stage_runner.py
+│   │   ├── streaming.py
+│   │   └── ...
+│   ├── router/          # Enrutamiento de intenciones
+│   ├── sanitizer/       # Limpieza de inputs
+│   ├── llm_providers/   # Clientes LLM (Ollama, Gemini, Groq, Local)
+│   └── rag/             # RAG modularizado (NUEVO)
+│       ├── __init__.py  # RAGEngine (compatibilidad)
+│       ├── utils.py     # Validación y utilidades
+│       ├── collection.py # Manejo de ChromaDB
+│       ├── indexing.py   # Indexación de documentos
+│       └── query.py      # Búsqueda semántica
+├── models/              # Modelos de datos Pydantic
+├── tests/               # Pruebas unitarias (34+ tests)
+├── tools/               # Herramientas nativas
+├── orchestration/       # Gestor de recursos
+├── persistence/         # Memoria y caché
+├── web/                 # Dashboard web
 ├── monitoring/          # Métricas Prometheus
-└── route_library/       # Biblioteca de rutas de ejemplo (reutilizables)
+└── route_library/       # Biblioteca de rutas reutilizables
+```
 
 ## ✨ Características Principales
-1. Agentes Especializados: Configuración independiente, rutas específicas, memoria a corto/largo plazo, validación Pydantic.
-2. Múltiples Proveedores LLM: Ollama, Gemini, Groq.
-3. Sistema de Stages: Encadenamiento de LLMs.
-4. Perfiles Dinámicos de Recursos: Selección de modelo según hardware.
-5. Caché de Respuestas: TTL configurable.
-6. Firewall Multicapa: Ingress (regex/semántico), Egress, Gatekeeper.
-7. RAG: Indexación y búsqueda semántica.
-8. Telemetría y Logs: JSON, rotación, trazabilidad.
-9. Dashboard Web: FastAPI, WebSockets.
-10. Métricas Prometheus: Endpoint /metrics.
-11. Streaming de Respuestas: Tiempo real.
-12. Biblioteca de Rutas: Carpeta route_library/ reutilizable.
+- **Agentes Especializados:** Configuración independiente, rutas específicas, memoria a corto/largo plazo
+- **Múltiples Proveedores LLM:** Ollama, Gemini, Groq
+- **Sistema de Stages:** Encadenamiento de LLMs con soporte multi-proveedor
+- **Arquitectura Modular:** SRP aplicado, bajo acoplamiento, alta cohesión
+- **RAG Modular:** Indexación y búsqueda semántica con ChromaDB
+- **Firewall Multicapa:** Ingress (regex), Egress (comandos peligrosos), Gatekeeper (aprobación humana)
+- **Streaming de Respuestas:** Tiempo real con fallback automático
+- **Caché de Respuestas:** TTL configurable
+- **Dashboard Web:** FastAPI + WebSockets
+- **Métricas Prometheus:** Endpoint /metrics
+- **Tests Unitarios:** 34+ tests para módulos core
 
 ## 🔧 Instalación y Configuración
+
 ### Requisitos
 - Python 3.14+
 - Ollama (con modelos descargados)
 - (Opcional) API keys de Gemini/Groq
-- (Opcional) Docker
 
 ### Instalación Local
+```bash
 git clone https://github.com/fyjjuk/FerdoNAN
 cd FerdoNAN
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
+```
 
 ### Configuración
-- Copia .env.example a .env y edita las API keys.
-- Asegura que Ollama esté corriendo: ollama serve
+- Copia `.env.example` a `.env` y edita las API keys
+- Asegura que Ollama esté corriendo: `ollama serve`
 
 ## 🎮 Uso
+
 ### Ejecutar el asistente
+```bash
 python main.py
+```
 
 ### Dashboard Web
+```bash
 python web/dashboard.py
-Accede a http://localhost:8000
+# Accede a http://localhost:8000
+```
 
-### Utilidades
-# Backup del proyecto
-python scripts/user/backup_cli.py crear
-# Ver logs en tiempo real
-python scripts/user/logs_tail.py
-# Health check
-python scripts/diagnostic/check_health.py
-# Buscar archivos duplicados
-python scripts/diagnostic/find_duplicates.py
-# Exportar estructura del proyecto
-python scripts/diagnostic/audit_project.py
+### Ejecutar Tests
+```bash
+pytest tests/ -v
+```
+
+## 🧪 Tests Unitarios
+La refactorización incluye 34 tests unitarios que cubren:
+- `core/llm_factory.py` - Creación de clientes LLM
+- `core/factory.py` - Creación de router y sanitizer
+- `core/pipeline.py` - Pipeline de procesamiento
+- `executor/stage_runner.py` - Ejecución de stages
+- `executor/streaming.py` - Streaming de respuestas
+- `rag/` - Servicios RAG modularizados
 
 ## 📚 Biblioteca de Rutas
 Para copiar una ruta a un agente existente:
+```bash
 ./scripts/user/copy_route.sh <nombre_ruta> <id_agente>
+```
 
-## 🧪 Tests
-pytest tests/ -v
+## 🔄 Cambios en v2.4 (Refactorización)
+
+### Mejoras arquitectónicas
+- Descomposición de `core/engine.py`: 114 → 35 líneas
+- Descomposición de `cognitive.py`: 194 → 95 líneas
+- Extracción de RAG: 129 líneas → 5 módulos cohesivos
+- Reorganización de `security/`: filtros y autenticación separados
+- Reorganización de `services/`: router, sanitizer, executor organizados por dominio
+
+### Eliminación de código muerto
+- 16 archivos obsoletos eliminados (backups, `.gatekeeper_backup`)
 
 ## 📜 Licencia
 MIT
@@ -110,8 +153,7 @@ MIT
 ## 🤝 Contribuciones
 Por favor, abre un issue o pull request en GitHub.
 
-## 🌟 Próximos Pasos Planeados
-- Autoregeneración (reintentos con backoff exponencial)
-- Tests de integración
-- Mejoras en la interfaz web
-- Soporte para más proveedores LLM
+## 🙏 Agradecimientos
+- [Repomix](https://github.com/yamadashy/repomix) - Empaquetado eficiente del código para IA
+- [ChromaDB](https://www.trychroma.com/) - Base de datos vectorial
+- [Sentence Transformers](https://www.sbert.net/) - Embeddings semánticos

@@ -1,0 +1,141 @@
+╔════════════════════════════════════════════════════════════════════════╗
+║                                                                        ║
+║                   FERDONAN v2.0 - FIX SUITE QUICK START                ║
+║                                                                        ║
+╚════════════════════════════════════════════════════════════════════════╝
+
+
+┌─ PASO 1: VERIFICA ESTADO ACTUAL ────────────────────────────────────┐
+│                                                                       │
+│  $ bash /home/claude/verify_fixes.sh                                 │
+│                                                                       │
+│  Este script diagnostica qué fixes se necesitan                      │
+│  Genera reporte visual de vulnerabilidades detectadas                │
+│                                                                       │
+└───────────────────────────────────────────────────────────────────────┘
+
+
+┌─ PASO 2: ELIGE MÉTODO DE EJECUCIÓN ─────────────────────────────────┐
+│                                                                       │
+│  OPCIÓN A: INTERACTIVO (RECOMENDADO)                                │
+│  ────────────────────────────────────────                            │
+│  $ bash /home/claude/fix_interactive.sh                              │
+│                                                                       │
+│  ✓ Menú visual                                                       │
+│  ✓ Selecciona qué fixes ejecutar                                     │
+│  ✓ Ver información detallada                                         │
+│  ✓ Rollback fácil                                                    │
+│                                                                       │
+│  ─────────────────────────────────────────────────────────────────   │
+│                                                                       │
+│  OPCIÓN B: AUTOMÁTICO (TODOS LOS FIXES)                             │
+│  ─────────────────────────────────────────                           │
+│  $ bash /home/claude/MASTER_FIX.sh                                   │
+│                                                                       │
+│  ✓ Más rápido                                                        │
+│  ✓ Aplica todas las correcciones en orden                            │
+│  ✓ Verifica sintaxis automáticamente                                 │
+│                                                                       │
+│  ─────────────────────────────────────────────────────────────────   │
+│                                                                       │
+│  OPCIÓN C: INDIVIDUAL (CONTROL TOTAL)                               │
+│  ───────────────────────────────────────                             │
+│  $ bash /home/claude/fix_stages_validation.sh      # Fix #1         │
+│  $ bash /home/claude/fix_rag_injection.sh          # Fix #3         │
+│  $ bash /home/claude/fix_critical_routes.sh        # Fix #6         │
+│  $ bash /home/claude/fix_resource_profiles.sh      # Fix #4         │
+│  $ bash /home/claude/fix_streaming.sh              # Fix #5         │
+│                                                                       │
+│  ✓ Depuración específica                                             │
+│  ✓ Ejecuta uno a uno                                                 │
+│                                                                       │
+└───────────────────────────────────────────────────────────────────────┘
+
+
+┌─ PASO 3: VERIFICA EJECUCIÓN ───────────────────────────────────────┐
+│                                                                       │
+│  Tras ejecutar los fixes, verifica:                                  │
+│                                                                       │
+│  $ cd ~/ferdonan                                                     │
+│                                                                       │
+│  # Verificar sintaxis                                                │
+│  $ python3 -m py_compile core/engine.py                              │
+│  $ python3 -m py_compile services/executor/cognitive.py              │
+│                                                                       │
+│  # Ejecutar tests                                                    │
+│  $ pytest tests/ -v                                                  │
+│                                                                       │
+│  # Iniciar FerdoNAN                                                  │
+│  $ python main.py                                                    │
+│                                                                       │
+│  # Ver logs en tiempo real (en otra terminal)                        │
+│  $ tail -f logs/ferdonan.log                                         │
+│                                                                       │
+└───────────────────────────────────────────────────────────────────────┘
+
+
+┌─ TABLA DE FIXES ────────────────────────────────────────────────────┐
+│                                                                       │
+│  Nº │ Fix                           │ Severidad │ Tiempo │ Estado   │
+│  ────────────────────────────────────────────────────────────────   │
+│  #1 │ Validación de Stages          │ CRÍTICA   │ 2 min  │ ☐       │
+│  #2 │ Gatekeeper Activation         │ CRÍTICA   │ 3 min  │ ☐       │
+│  #3 │ RAG Injection Hardening       │ CRÍTICA   │ 2 min  │ ☐       │
+│  #4 │ Dynamic Resource Profiles     │ ALTA      │ 2 min  │ ☐       │
+│  #5 │ Real Streaming Implementation │ MEDIA     │ 3 min  │ ☐       │
+│  #6 │ Critical Routes Protection    │ CRÍTICA   │ 2 min  │ ☐       │
+│                                                                       │
+│  Total tiempo estimado: ~14 minutos                                   │
+│                                                                       │
+└───────────────────────────────────────────────────────────────────────┘
+
+
+┌─ ARCHIVOS GENERADOS ───────────────────────────────────────────────┐
+│                                                                       │
+│  En /home/claude/:                                                    │
+│                                                                       │
+│  ✓ fix_stages_validation.sh       (2.7 KB)                           │
+│  ✓ fix_gatekeeper_activation.sh   (3.2 KB)                           │
+│  ✓ fix_rag_injection.sh           (3.5 KB)                           │
+│  ✓ fix_resource_profiles.sh       (5.9 KB)                           │
+│  ✓ fix_streaming.sh               (4.7 KB)                           │
+│  ✓ fix_critical_routes.sh         (5.2 KB)                           │
+│  ✓ MASTER_FIX.sh                  (7.4 KB)                           │
+│  ✓ fix_interactive.sh             (8.3 KB)                           │
+│  ✓ verify_fixes.sh                (14 KB)                            │
+│  ✓ FIX_SUITE_README.md            (8.0 KB)                           │
+│                                                                       │
+│  Total: 10 scripts + documentación                                    │
+│                                                                       │
+└───────────────────────────────────────────────────────────────────────┘
+
+
+┌─ TROUBLESHOOTING ──────────────────────────────────────────────────┐
+│                                                                       │
+│  P: ¿Qué hago si un fix falla?                                       │
+│  R: Revisa el archivo .backup_* creado:                              │
+│     $ diff archivo.backup_tipo archivo_original                     │
+│     Luego restaura si es necesario                                   │
+│                                                                       │
+│  P: ¿Puedo hacer rollback?                                           │
+│  R: Sí, cada fix crea backup automático:                             │
+│     $ cp archivo.backup_[tipo] archivo                               │
+│                                                                       │
+│  P: ¿En qué orden ejecuto los fixes?                                 │
+│  R: Recomendado: 1 → 3 → 6 → 4 → 5                                   │
+│     O usa MASTER_FIX.sh para orden automático                        │
+│                                                                       │
+│  P: ¿Necesito editarlos manualmente?                                 │
+│  R: No, pero si algo falla, hay instrucciones dentro de cada script  │
+│                                                                       │
+└───────────────────────────────────────────────────────────────────────┘
+
+
+╔════════════════════════════════════════════════════════════════════════╗
+║                           EMPEZAR AHORA                                ║
+║                                                                        ║
+║  $ bash /home/claude/verify_fixes.sh       # Diagnóstico              ║
+║  $ bash /home/claude/fix_interactive.sh    # O MASTER_FIX.sh          ║
+║                                                                        ║
+╚════════════════════════════════════════════════════════════════════════╝
+

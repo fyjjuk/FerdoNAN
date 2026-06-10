@@ -2,7 +2,7 @@ import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from services.intent_router import Router
+from services.router.intent_router import Router
 
 def test_router_loading():
     """Router debe cargar correctamente con diferentes modos"""

@@ -3,7 +3,7 @@ import select
 import logging
 import time
 from collections import defaultdict
-from security.audit import audit
+from security.auth.audit import audit
 
 logger = logging.getLogger("ferdonan.core.gatekeeper")
 

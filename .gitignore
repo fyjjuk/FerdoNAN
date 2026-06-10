@@ -47,3 +47,20 @@ scripts/diagnostic/__pycache__/
 .pytest_cache/
 backups/
 patches/
+repomix-output.*
+repomix.config.json
+
+# Archivos temporales de tests
+.coverage
+test_streaming_*.py
+ferdonan-repomix.md
+
+# Documentación generada
+docs/build/
+docs/Makefile
+docs/make.bat
+
+# Node modules (si no se usan)
+node_modules/
+package-lock.json
+package.json

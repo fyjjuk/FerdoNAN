@@ -10,4 +10,4 @@ system_prompt: |-
   - Objetivo o secreto
   - Posible gancho de misión para los jugadores
   Formato claro pero narrativo.
-gatekeeper_required: false
+gatekeeper_required: true

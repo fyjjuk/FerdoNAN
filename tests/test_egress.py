@@ -3,7 +3,7 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import tempfile
-from security.egress import EgressFilter
+from security.filters.egress import EgressFilter
 
 def test_egress_blocks_dangerous_command():
     with tempfile.NamedTemporaryFile(mode='w', suffix='.txt') as cmd_f, \

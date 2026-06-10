@@ -3,7 +3,7 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import tempfile
-from security.ingress import IngressFilter
+from security.filters.ingress import IngressFilter
 
 def test_ingress_blocks_dangerous_pattern():
     with tempfile.NamedTemporaryFile(mode='w', suffix='.txt') as f:

@@ -10,12 +10,12 @@ from unittest.mock import Mock, patch
 # Añadir el directorio raíz al path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from security.ingress import IngressFilter
-from security.egress import EgressFilter
-from security.semantic_output import SemanticOutputFilter
+from security.filters.ingress import IngressFilter
+from security.filters.egress import EgressFilter
+from security.filters.semantic import SemanticOutputFilter
 from security.rate_limiter import RateLimiter
-from security.gatekeeper import Gatekeeper
-from security.audit import ApprovalAudit
+from security.auth.gatekeeper import Gatekeeper
+from security.auth.audit import ApprovalAudit
 
 
 class TestIngressFilter:
@@ -155,7 +155,7 @@ class TestSemanticOutputFilter:
         
         assert result == "texto inofensivo"
 
-    @patch('security.semantic_output.SemanticOutputFilter._init_classifier')
+    @patch('security.filters.semantic.SemanticOutputFilter._init_classifier')
     def test_semantic_filter_handles_exception_during_inference(self, mock_init):
         """Semantic: debe bloquear si ocurre una excepción durante la inferencia."""
         semantic = SemanticOutputFilter(default_enabled=True)

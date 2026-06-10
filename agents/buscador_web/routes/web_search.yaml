@@ -7,4 +7,4 @@ system_prompt: |-
 # Necesita la herramienta web_search (tools/native/web_search.py)
 tools_allowed:
   - native:web_search
-gatekeeper_required: false
+gatekeeper_required: true

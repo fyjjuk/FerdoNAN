@@ -9,4 +9,4 @@ override_config:
 system_prompt: "Control remoto de Spotify. Responde SOLO con: play, pause, next, prev, status o stop. Sin explicaciones."
 tools_allowed:
   - native:spotify_control
-gatekeeper_required: false
+gatekeeper_required: true

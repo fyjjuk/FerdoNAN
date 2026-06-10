@@ -104,6 +104,11 @@ class ResourceScheduler:
         """
         Determina el perfil de recursos ('high', 'medium', 'low') basado en recursos disponibles.
         Si el agente no tiene dynamic_resource_management activado, retorna 'default'.
+        
+        Umbrales configurables en config.settings:
+          HIGH:   VRAM > 4000MB & RAM > 8000MB
+          MEDIUM: VRAM > 2000MB & RAM > 4000MB
+          LOW:    Fallback (dispositivos con poca memoria)
         """
         dynamic = llm_provider_dict.get("dynamic_resource_management", False)
         if not dynamic:
@@ -111,16 +116,51 @@ class ResourceScheduler:
         
         metrics = self.get_system_metrics()
         ram_free_mb = metrics.get("ram_available_mb", 0)
+        cpu_percent = metrics.get("cpu_percent", 0)
         
         # Detectar VRAM libre si está disponible
         vram_free_mb = None
         if "vram_total_mb" in metrics and "vram_used_mb" in metrics:
             vram_free_mb = metrics["vram_total_mb"] - metrics["vram_used_mb"]
         
-        # Umbrales (ajustables según tu hardware: RTX 4050 6GB, 16GB RAM)
-        if vram_free_mb and vram_free_mb > 4000 and ram_free_mb > 8000:
-            return "high"
-        elif vram_free_mb and vram_free_mb > 2000 and ram_free_mb > 4000:
-            return "medium"
-        else:
+        # Configuración de umbrales
+        high_vram_threshold = 4000   # MB
+        high_ram_threshold = 8000    # MB
+        medium_vram_threshold = 2000 # MB
+        medium_ram_threshold = 4000  # MB
+        cpu_threshold = 70           # %
+        
+        # Lógica de selección mejorada
+        profile = "low"
+        reason = "Recursos limitados (fallback)"
+        
+        # Evitar modelo pesado si CPU está muy ocupado
+        if cpu_percent > cpu_threshold:
+            logger.warning(f"CPU muy ocupado ({cpu_percent:.1f}%). Seleccionando perfil LOW.")
             return "low"
+        
+        # Seleccionar basado en VRAM si disponible
+        if vram_free_mb:
+            if vram_free_mb > high_vram_threshold and ram_free_mb > high_ram_threshold:
+                profile = "high"
+                reason = f"VRAM={vram_free_mb:.0f}MB, RAM={ram_free_mb:.0f}MB (suficiente)"
+            elif vram_free_mb > medium_vram_threshold and ram_free_mb > medium_ram_threshold:
+                profile = "medium"
+                reason = f"VRAM={vram_free_mb:.0f}MB, RAM={ram_free_mb:.0f}MB (moderado)"
+            else:
+                profile = "low"
+                reason = f"VRAM={vram_free_mb:.0f}MB, RAM={ram_free_mb:.0f}MB (limitado)"
+        else:
+            # Fallback: usar solo RAM
+            if ram_free_mb > high_ram_threshold:
+                profile = "high"
+                reason = f"RAM={ram_free_mb:.0f}MB (sin VRAM, pero suficiente)"
+            elif ram_free_mb > medium_ram_threshold:
+                profile = "medium"
+                reason = f"RAM={ram_free_mb:.0f}MB (sin VRAM)"
+            else:
+                profile = "low"
+                reason = f"RAM={ram_free_mb:.0f}MB (muy limitado)"
+        
+        logger.info(f"RESOURCE_PROFILE_SELECTION: {profile} ({reason})")
+        return profile

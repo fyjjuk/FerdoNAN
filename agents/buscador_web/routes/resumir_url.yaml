@@ -6,4 +6,4 @@ system_prompt: |-
   Si no puedes acceder, explica el problema.
 tools_allowed:
   - native:web_fetch
-gatekeeper_required: false
+gatekeeper_required: true

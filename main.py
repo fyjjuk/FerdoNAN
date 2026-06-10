@@ -13,10 +13,11 @@ from core.engine import FerdoNANEngine
 from persistence.memory_store import ShortTermMemory
 from persistence.long_term_memory import LongTermMemory
 from core.tracing import generate_request_id
-from services.intent_router import RouteNotFoundError
-from security.ingress import IngressFilter
-from security.egress import EgressFilter
-from security.semantic_output import SemanticOutputFilter
+from services.router.intent_router import RouteNotFoundError
+from security.filters.ingress import IngressFilter
+from core.llm_factory import create_llm_client
+from security.filters.egress import EgressFilter
+from security.filters.semantic import SemanticOutputFilter
 from ui.selector import select_agent_interactive
 
 def check_ollama():
@@ -78,7 +79,7 @@ def bootstrap_core():
     egress = EgressFilter(settings.EGRESS_CMD_BLACKLIST_PATH, settings.EGRESS_TOOLS_BLACKLIST_PATH)
     semantic = SemanticOutputFilter(default_enabled=False)
     
-    from security.gatekeeper import Gatekeeper
+    from security.auth.gatekeeper import Gatekeeper
     from persistence.cache import ResponseCache
     gatekeeper = Gatekeeper(default_timeout=settings.GATEKEEPER_TIMEOUT, force_all=settings.GATEKEEPER_FORCE_ALL)
     cache = ResponseCache()
@@ -106,7 +107,7 @@ def bootstrap_core():
                 manifest = AgentManifest(**data)
                 manifest.memory = ShortTermMemory(manifest.short_term_memory_window)
                 manifest.long_term_memory = LongTermMemory(agent_id, engine.rag_engine)
-                manifest.llm_client = engine._get_llm_client(agent_id, data, core_config)
+                manifest.llm_client = create_llm_client(agent_id, data, core_config)
 
                 # Cargar rutas del agente
                 routes_dir = os.path.join(path, "routes")

@@ -6,4 +6,4 @@ system_prompt: |-
   Si el usuario pide una canción específica, usa search_and_play.
 tools_allowed:
   - native:spotify_control
-gatekeeper_required: false
+gatekeeper_required: true
