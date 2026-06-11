@@ -1,17 +1,21 @@
 # FerdoNAN - Asistente Personal Multi-Agente con IA
 
-**Versión:** 2.4.0 (Expansión UI, RAG avanzado, CLI mejorado, Ascii-Studio)  
+**Versión:** 2.4.1 (Comandos slash, reestructuración de UI)  
 **Estado:** Producción estable | **Arquitectura:** Hexagonal + Plugins
 
 ## Descripción General
 
 FerdoNAN es un framework modular para asistentes de IA basado en agentes especializados, diseñado bajo principios de **bajo acoplamiento** y **alta cohesión**. Cada agente opera con su propio modelo de lenguaje, configuración de seguridad y capacidades, mientras que el núcleo (`core/`) proporciona servicios de orquestación, enrutamiento, ejecución y seguridad multicapa.
 
-**Novedades v2.4.0:** Sistema completo de theming visual, CLI con comandos slash y autocompletado, componentes ASCII art, agente de desarrollo (GitHub + code review), y parsing avanzado de documentos con MarkItDown.
+**Novedades v2.4.1:**
+- Comandos slash (`/help`, `/exit`, `/agent list`, `/agent switch`, `/config show`, `/clear`)
+- Reestructuración de UI: comandos reutilizables en `ui/cli_commands.py`
+- Selector de agentes renombrado a `ui/agent_selector.py`
+- Sistema de versionado SemVer (archivo `VERSION`)
 
 ## Arquitectura de Alto Nivel
 
-~~~mermaid
+```mermaid
 flowchart LR
     CLI[CLI Interface] --> ENGINE[FerdoNANEngine]
     ENGINE --> PIPELINE[Pipeline Processor]
@@ -26,26 +30,28 @@ flowchart LR
     RAG --> MARKITDOWN[MarkItDown Parser]
     CLI --> THEMES[UI Themes]
     CLI --> ASCII[ASCII Studio]
-~~~
+    CLI --> CMDS[CLI Commands]
+```
 
-## 📦 Estructura del Proyecto (Refactorizada v2.4)
+## Estructura del Proyecto (v2.4.1)
 
-~~~text
+```
 ferdonan/
 ├── agents/                     # Agentes especializados
-│   ├── buscador_web/           # Búsqueda web (DuckDuckGo)
-│   ├── experto_linux/          # Administración Linux Fedora
-│   ├── narrador_dnd/           # Generador de contenido D&D
+│   ├── narrador_dnd/           # Director de juego D&D
+│   │   ├── resources/          # Recursos inmutables (libros, reglas)
+│   │   ├── workspace/          # Datos dinámicos (personajes, inventarios)
+│   │   ├── tools/              # Herramientas propias del agente
+│   │   └── routes/             # Rutas YAML
 │   ├── spotify_player/         # Control de Spotify
-│   ├── stage_sandbox/          # Sandbox para pruebas
-│   └── dev_assistant/          # Asistente de desarrollo (GitHub, code review)
-├── core/                       # Motor principal (modularizado, 35L)
+│   └── dev_assistant/          # Asistente de desarrollo
+├── core/                       # Motor principal
 │   ├── engine.py               # Estado e inicialización
 │   ├── pipeline.py             # Pipeline de procesamiento
 │   ├── factory.py              # Creación de componentes
 │   ├── llm_factory.py          # Creación de clientes LLM
-│   ├── interfaces.py           # Protocolos y ABCs estandarizados
-│   └── i18n/                   # Sistema de localización (JSON)
+│   ├── interfaces.py           # Protocolos y ABCs
+│   └── i18n/                   # Sistema de localización
 ├── security/                   # Firewalls y seguridad
 │   ├── filters/                # Ingress, egress, semantic
 │   ├── auth/                   # Gatekeeper, audit
@@ -55,174 +61,123 @@ ferdonan/
 │   ├── router/                 # Enrutamiento (keyword, embedding, hybrid, LLM)
 │   ├── sanitizer/              # Limpieza de inputs
 │   ├── llm_providers/          # Ollama, Gemini, Groq, Local
-│   └── rag/                    # RAG modular
-│       ├── parsers/            # MarkItDown adapter (PDF, DOCX, XLSX, PPTX, images)
-│       ├── indexing.py         # Indexación con fallback
-│       ├── query.py            # Búsqueda semántica
-│       └── collection.py       # Gestión de ChromaDB
-├── ui/                         # Interfaz de usuario (NUEVO)
+│   └── rag/                    # RAG modular con MarkItDown
+├── ui/                         # Interfaz de usuario
+│   ├── agent_selector.py       # Selector de agentes
+│   ├── cli_commands.py         # Comandos slash reutilizables
 │   ├── console/                # Renderer con temas ANSI
-│   ├── cli/                    # Comandos slash, historial, autocompletado
 │   ├── ascii/                  # Banners, boxes, tables, spinners
 │   └── themes/                 # Temas YAML (refero, cyberpunk)
+├── libs/                       # Biblioteca de recursos (ejemplos)
+│   └── routes/                 # Rutas de ejemplo por versión
 ├── models/                     # Modelos de datos Pydantic
 ├── tests/                      # Pruebas unitarias (44+ tests)
-├── tools/native/               # Herramientas nativas
 ├── locales/                    # Diccionarios i18n (en, es)
-├── experimental/               # Código en desarrollo (mcp_client)
+├── VERSION                     # Versión SemVer del proyecto
 └── docs/                       # Documentación Sphinx
-~~~
+```
 
-## ✨ Características Principales (Actualizadas)
+## Comandos CLI
+
+| Comando | Descripción |
+|---|---|
+| `/help` | Muestra la ayuda |
+| `/exit` o `/quit` | Sale del asistente |
+| `/agent list` | Lista todos los agentes disponibles |
+| `/agent switch <nombre>` | Cambia al agente especificado |
+| `/config show` | Muestra la configuración actual |
+| `/clear` | Limpia la pantalla |
+
+También puedes escribir `salir`, `exit` o `quit` para salir.
+
+## Características Principales
 
 ### Núcleo y Agentes
-- **Agentes especializados:** Configuración vía YAML, rutas semánticas, memoria a corto/largo plazo
-- **Múltiples LLM:** Ollama (local), Gemini (Google), Groq (LPU), Local (custom)
-- **Sistema de Stages:** Encadenamiento de LLMs con diferentes proveedores
+- Agentes especializados: Configuración vía YAML, rutas semánticas, memoria persistente
+- Múltiples LLM: Ollama (local), Gemini (Google), Groq (LPU), Local (custom)
+- Sistema de Stages: Encadenamiento de LLMs con diferentes proveedores
 
 ### RAG Avanzado (MarkItDown)
-- **Parsers inteligentes:** Soporte para PDF, DOCX, XLSX, PPTX, HTML, imágenes (OCR), URLs
-- **Registro de parsers:** Extensible vía decorador `@register_parser`
-- **Fallback automático:** Usa parsers básicos si MarkItDown no está disponible
+- Parsers inteligentes: Soporte para PDF, DOCX, XLSX, PPTX, HTML, imágenes (OCR), URLs
+- Registro de parsers: Extensible vía decorador `@register_parser`
 
 ### UI y Experiencia de Usuario
-- **Temas visuales:** YAML configurables (colores, badges, emojis)
-- **Comandos CLI:** `/help`, `/exit`, `/clear`, `/agent list`, `/config show`, `/debug`
-- **Historial persistente:** Comandos guardados entre sesiones
-- **Autocompletado:** Tab completion para comandos slash
-- **ASCII Studio:** Banners, boxes decorativos, tablas, spinners, barras de progreso
+- Temas visuales: YAML configurables (colores, badges, emojis)
+- Comandos CLI: Sistema completo de comandos slash
+- Historial persistente: Comandos guardados entre sesiones
+- ASCII Studio: Banners, boxes decorativos, tablas, spinners
 
 ### Developer Assistant (Spec-Kit)
-- **GitHub integration:** Listar repos, PRs, issues; crear PRs/issues
-- **Code review:** Análisis de estilo, detección de TODOs/FIXMEs, sugerencias de documentación
-- **Generación de specs:** Estructura técnica de requerimientos
+- GitHub integration: Listar repos, PRs, issues; crear PRs/issues
+- Code review: Análisis de estilo, detección de TODOs/FIXMEs
 
 ### Seguridad
-- **Firewall multicapa:** Ingress (regex), Egress (blacklist de comandos), Semántico (profanity)
-- **Gatekeeper:** Aprobación humana con timeout (select POSIX)
-- **Rate Limiting:** Ventana deslizante por usuario
-- **Auditoría:** Logging de decisiones de aprobación
+- Firewall multicapa: Ingress (regex), Egress (blacklist), Semántico (profanity)
+- Gatekeeper: Aprobación humana con timeout
+- Rate Limiting: Ventana deslizante por usuario
 
-### Observabilidad
-- **Dashboard web:** FastAPI + WebSockets (monitoreo en tiempo real)
-- **Métricas Prometheus:** Endpoint `/metrics`
-- **Logs JSON:** Rotación, trazabilidad con `request_id`
+## Demo con Docker
 
-## 🚀 Demo con Docker (recomendada)
-
-~~~bash
+```bash
 git clone https://github.com/fyjjuk/FerdoNAN
 cd FerdoNAN
 docker-compose -f docker-compose.demo.yml up
 # En otra terminal:
 docker exec -it ferdonan-ollama ollama pull phi3:mini
 docker exec -it ferdonan-ollama ollama pull llama3.2:3b
-# Accede al menú interactivo en la terminal donde se ejecutó docker-compose up
-# Dashboard: http://localhost:8000
-~~~
+```
 
-## 🔧 Instalación y Configuración Local
+## Instalación Local
 
-~~~bash
+```bash
 git clone https://github.com/fyjjuk/FerdoNAN
 cd FerdoNAN
 python -m venv venv
 source venv/bin/activate
 pip install -r requirements.txt
-
-# Configuración (opcional)
-cp .env.example .env
-# Edita .env con tus API keys (Gemini, Groq, GitHub)
 ollama serve  # En otra terminal
-~~~
-
-## 🎮 Uso Avanzado
-
-### Comandos CLI
-~~~bash
-/help                        # Muestra ayuda
-/agent list                  # Lista agentes disponibles
-/agent select buscador_web   # Cambia de agente
-/config show                 # Muestra configuración actual
-/debug                       # Información de depuración
-/clear                       # Limpia pantalla
-/exit                        # Sale del asistente
-~~~
-
-### Temas Visuales
-~~~bash
-export FERDONAN_THEME=cyberpunk  # Tema cyberpunk
-export FERDONAN_THEME=refero     # Tema por defecto
 python main.py
-~~~
+```
 
-### Localización
-~~~bash
-export FERDONAN_LOCALE=es  # Mensajes en español
-export FERDONAN_LOCALE=en  # Inglés (por defecto)
-~~~
+## Tests Unitarios
 
-## 🧪 Tests Unitarios (44+ tests)
-
-~~~bash
+```bash
 pytest tests/ -v
-# Tests específicos:
-pytest tests/test_rag_unit.py -v      # RAG modular (10 tests)
-pytest tests/test_interfaces.py -v    # Interfaces (7 tests)
-pytest tests/test_llm_factory.py -v   # LLM factory (5 tests)
-~~~
+```
 
-## 📚 Extensibilidad
+## Extensibilidad
 
 ### Crear un nuevo agente
-~~~bash
-mkdir -p agents/mi_agente/routes
+
+```bash
+mkdir -p agents/mi_agente/{routes,tools,workspace,resources}
 # Crear agents/mi_agente/config.yaml
 # Crear agents/mi_agente/routes/mi_ruta.yaml
-~~~
+```
 
-### Registrar un nuevo parser de documentos
-~~~python
-from services.rag.parsers.registry import register_parser
+### Añadir un nuevo comando slash
 
-@register_parser("mi_parser", extensions=[".ext"])
-class MiParser:
-    def parse_file(self, file_path: str) -> str:
-        return text
-~~~
+Edita `ui/cli_commands.py` y añade tu comando en la función `process_slash_command()`.
 
-### Crear un tema visual
-~~~yaml
-# ui/themes/mi_tema.yaml
-name: "Mi Tema"
-colors:
-  primary: "#FF0000"
-badges:
-  agent: "[🤖]"
-console:
-  use_emoji: true
-  use_colors: true
-~~~
+## Documentación Técnica
 
-## 📖 Documentación Técnica
-
-~~~bash
+```bash
 cd docs/build/html
 python -m http.server 8000
 # Abrir http://localhost:8000
-~~~
+```
 
-Generada con Sphinx desde docstrings y archivos Markdown.
+## Contribuciones
 
-## 🤝 Contribuciones
 Ver `docs/source/contributing.md`
 
-## 📜 Licencia
+## Licencia
+
 MIT
 
-## 🙏 Agradecimientos
+## Agradecimientos
+
 - [Repomix](https://github.com/yamadashy/repomix) - Empaquetado de código para IA
 - [ChromaDB](https://www.trychroma.com/) - Base de datos vectorial
-- [Sentence Transformers](https://www.sbert.net/) - Embeddings semánticos
 - [MarkItDown](https://github.com/microsoft/markitdown) - Conversión de documentos
 - [PyGithub](https://pygithub.readthedocs.io/) - API de GitHub
