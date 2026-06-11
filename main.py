@@ -21,7 +21,6 @@ from security.filters.semantic import SemanticOutputFilter
 from ui.agent_selector import select_agent_interactive
 from ui.cli_commands import process_slash_command
 
-
 def check_ollama():
     import requests
     try:
@@ -39,7 +38,6 @@ def check_ollama():
     except Exception as e:
         print(f"\033[91m❌ Error verificando Ollama: {e}\033[0m")
         return False
-
 
 def bootstrap_security_assets():
     from ui import ConsoleRenderer
@@ -59,7 +57,6 @@ def bootstrap_security_assets():
                 f.write(default_content)
             logger.info(f"Archivo de seguridad creado: {filepath}")
     return True
-
 
 def bootstrap_core():
     from dotenv import load_dotenv
@@ -142,7 +139,6 @@ def bootstrap_core():
     
     return engine, loaded
 
-
 if __name__ == "__main__":
     engine, agents = bootstrap_core()
     generate_request_id()
@@ -163,6 +159,16 @@ if __name__ == "__main__":
         if agent is None:
             sys.exit(0)
     
+    # --- Inicialización del asistente de voz (opcional) ---
+    voice_assistant = None
+    if os.environ.get("FERDONAN_VOICE_ENABLED", "").lower() == "true":
+        try:
+            from services.voice.voice_assistant import init_voice_assistant
+            voice_assistant = init_voice_assistant(engine, agents, agent)
+            print("[Voz] Asistente de voz activado. Presiona la tecla Copilot para hablar.")
+        except Exception as e:
+            print(f"[-] Error iniciando asistente de voz: {e}")
+    
     print(f"[+] Agente Activo: {agent.name} ({agent.id})")
     print(f"[+] Concurrencia: {agent.execution_mode}")
     print(f"[+] Proveedor LLM: {agent.llm_provider.get('name', 'desconocido')}")
@@ -177,6 +183,12 @@ if __name__ == "__main__":
             if user_input.startswith('/'):
                 msg, new_agent, should_exit = process_slash_command(user_input, agents, agent)
                 print(msg)
+                # Si cambiamos de agente, actualizar la referencia en el asistente de voz
+                if voice_assistant and new_agent != agent:
+                    agent = new_agent
+                    voice_assistant.current_agent = agent
+                    print(f"[+] Cambiado al agente: {agent.name}")
+                    continue
                 if should_exit:
                     break
                 if new_agent != agent:
@@ -208,3 +220,9 @@ if __name__ == "__main__":
         except Exception as e:
             print(f"[-] Error: {e}")
             logger.error(f"Error en pipeline: {e}", extra={"component": "main"})
+    
+    # Al salir, detener el asistente de voz
+    if voice_assistant:
+        voice_assistant.stop()
+        print("[Voz] Asistente de voz detenido.")
+    sys.exit(0)

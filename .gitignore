@@ -1,70 +1,69 @@
-# Entorno virtual y dependencias
+# Entornos virtuales
 venv/
-__pycache__/
-*.pyc
+env/
+.venv/
 
-# Logs y bases de datos locales
+# Archivos de configuración sensible
+.env
+.env.local
+config/local.yaml
+
+# Logs y archivos temporales
 logs/
 *.log
-data/
-chroma.sqlite3
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
 
-# Archivos de sistema y configuración sensible
-.env
-config/local_secrets.yaml
-.DS_Store
-
-# Backups y temporales (global)
-*.bak
-*.backup
-*.old
-*.orig
-*.swp
-*.swo
-*.tmp
-*.temp
-*.bak_*
-*.clean_backup
-*.dirty
-*.cleanup_backup
-*.fixed_backup
-
-# Exportaciones del proyecto
-ferdonan_export.txt
-exportacion_completa.txt
-estructura.txt
-
-# Cachés y bases de datos locales
-*.sqlite3
-*.db
-cache/
-data/rag_storage/
-
-# Scripts de diagnóstico (mantener local, no subir)
-scripts/diagnostic/__pycache__/
-
-# Entorno y cachés adicionales
-.pytest_cache/
+# Backups y archivos de respaldo
 backups/
-patches/
-repomix-output.*
-repomix.config.json
+*.bak
+*.orig
+*.backup
+*~
 
-# Archivos temporales de tests
-.coverage
-test_streaming_*.py
-ferdonan-repomix.md
+# Archivos de caché
+cache/
+*.cache
+*.db
+*.sqlite3
 
 # Documentación generada
 docs/build/
-docs/Makefile
-docs/make.bat
+docs/source/_build/
+*.inv
 
-# Node modules (si no se usan)
-node_modules/
-package-lock.json
-package.json
+# Archivos de salida de herramientas
+repomix-output.xml
+ferdonan-repomix.md
+ferdonan_export.txt
 
-# Caché por agente
-agents/*/cache/
-agents/*/workspace/
+# Modelos de Vosk (binarios grandes) - opcional, se pueden descargar mediante script
+models/vosk/vosk-model-*/
+models/vosk/*.zip
+
+# Carpetas de datos generados
+data/rag_storage/
+data/piper_voices/
+
+# Archivos de código temporales
+*.swp
+*.swo
+*.swn
+
+# Ejecutables y scripts compilados
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Archivos de proyecto específicos
+.vscode/
+.idea/
+*.code-workspace
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+models/vosk/vosk-model-*/
