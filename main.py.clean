@@ -161,7 +161,7 @@ if __name__ == "__main__":
     
     # --- Inicialización del asistente de voz (opcional) ---
     voice_assistant = None
-    if os.environ.get("FERDONAN_VOICE_ENABLED", "true").lower() != "false":
+    if os.environ.get("FERDONAN_VOICE_ENABLED", "").lower() == "true":
         try:
             from services.voice.voice_assistant import init_voice_assistant
             voice_assistant = init_voice_assistant(engine, agents, agent)

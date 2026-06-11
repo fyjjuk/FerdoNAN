@@ -1,44 +1,20 @@
 import logging
 import sys
 import os
-from pythonjsonlogger import jsonlogger
 from logging.handlers import RotatingFileHandler
-from core.tracing import get_request_id
+from pythonjsonlogger import jsonlogger
 
-# Silenciar warnings molestos
-import warnings
-warnings.filterwarnings("ignore", category=UserWarning)
-warnings.filterwarnings("ignore", category=FutureWarning)
-warnings.filterwarnings("ignore", message=".*CUDA initialization.*")
-warnings.filterwarnings("ignore", message=".*unauthenticated requests.*")
+# Asegurar que el directorio logs existe
+os.makedirs("logs", exist_ok=True)
 
-# Si estamos en entorno de documentación Sphinx, no inicializar handlers
-if os.environ.get('SPHINX_BUILD') == '1':
-    logger = logging.getLogger("ferdonan")
-    logger.addHandler(logging.NullHandler())
-    instance = None
-else:
-    class FerdonanLogger:
-        def __init__(self):
-            self.logger = logging.getLogger("ferdonan")
-            if not self.logger.handlers:
-                self.logger.setLevel(logging.INFO)
-                formatter = jsonlogger.JsonFormatter('%(asctime)s %(levelname)s %(name)s %(message)s')
-                file_handler = RotatingFileHandler("logs/ferdonan.log", maxBytes=5*1024*1024, backupCount=5)
-                file_handler.setFormatter(formatter)
-                self.logger.addHandler(file_handler)
-                console_handler = logging.StreamHandler(sys.stdout)
-                console_handler.setLevel(logging.WARNING)
-                console_handler.setFormatter(formatter)
-                self.logger.addHandler(console_handler)
+logger = logging.getLogger("ferdonan")
+logger.setLevel(logging.INFO)
 
-    # Instancia exportable
-    instance = FerdonanLogger()
-    logger = instance.logger
+formatter = jsonlogger.JsonFormatter('%(asctime)s %(levelname)s %(name)s %(message)s')
 
-# Silenciar loggers de otras librerías
-logging.getLogger("urllib3").setLevel(logging.WARNING)
-logging.getLogger("requests").setLevel(logging.WARNING)
-logging.getLogger("transformers").setLevel(logging.WARNING)
-logging.getLogger("sentence_transformers").setLevel(logging.WARNING)
-logging.getLogger("chromadb").setLevel(logging.WARNING)
+# Solo logging a archivo, no a consola
+file_handler = RotatingFileHandler("logs/ferdonan.log", maxBytes=5*1024*1024, backupCount=5)
+file_handler.setFormatter(formatter)
+logger.addHandler(file_handler)
+
+# No añadimos ningún StreamHandler a la consola

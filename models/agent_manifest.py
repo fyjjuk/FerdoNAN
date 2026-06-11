@@ -1,3 +1,4 @@
+from typing import Optional, Dict
 from pydantic import BaseModel, Field
 from typing import Optional, Any, List, Literal, Dict
 
@@ -39,3 +40,7 @@ class AgentManifest(BaseModel):
     firewall_override: dict = Field(default_factory=dict)
     routes_available: List[dict] = Field(default_factory=list)
     tools: dict = Field(default_factory=dict)
+    voice_config: Optional[Dict[str, Any]] = Field(default_factory=dict)
+
+# Añadir al final de las importaciones, o modificar la clase AgentManifest
+# Buscamos la clase AgentManifest y añadimos un nuevo campo

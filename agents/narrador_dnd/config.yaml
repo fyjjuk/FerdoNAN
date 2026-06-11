@@ -34,3 +34,8 @@ router_config:
 sanitizer_config:
   enabled: true
   use_llm: false
+
+voice:
+  enabled: true
+  provider: edge
+  voice_id: "es-ES-AlvaroNeural"

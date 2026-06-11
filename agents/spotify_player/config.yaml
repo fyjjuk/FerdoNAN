@@ -24,3 +24,8 @@ router_config:
   threshold: 0.3
 cache:
   enabled: false
+
+voice:
+  enabled: true
+  provider: edge
+  voice_id: "es-ES-ElviraNeural"
