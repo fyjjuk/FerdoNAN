@@ -1,0 +1,26 @@
+{
+  "name": "crea un personaje llamado \"Aragorn\" clase Guerrero raza Humano",
+  "level": 1,
+  "class": "",
+  "race": "",
+  "background": "",
+  "stats": {
+    "STR": 10,
+    "DEX": 10,
+    "CON": 10,
+    "INT": 10,
+    "WIS": 10,
+    "CHA": 10
+  },
+  "hp": {
+    "current": 10,
+    "max": 10
+  },
+  "ac": 10,
+  "proficiency": 2,
+  "equipment": [],
+  "spells": [],
+  "notes": "",
+  "created_at": "2026-06-10T19:31:20.686449",
+  "updated_at": "2026-06-10T19:31:20.686449"
+}

@@ -5,7 +5,6 @@ from core.logger import logger
 from config.settings import settings
 import sys
 sys.modules['tqdm'] = __import__('tqdm')
-# Silenciar warnings de HF
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning, module="huggingface_hub")
 from models.manifest import AgentManifest
@@ -19,10 +18,11 @@ from core.llm_factory import create_llm_client
 from core.i18n import t, Localization
 from security.filters.egress import EgressFilter
 from security.filters.semantic import SemanticOutputFilter
-from ui.selector import select_agent_interactive
+from ui.agent_selector import select_agent_interactive
+from ui.cli_commands import process_slash_command
+
 
 def check_ollama():
-    """Verifica que Ollama esté corriendo antes de iniciar."""
     import requests
     try:
         response = requests.get(f"{settings.OLLAMA_HOST}/api/tags", timeout=3)
@@ -40,8 +40,8 @@ def check_ollama():
         print(f"\033[91m❌ Error verificando Ollama: {e}\033[0m")
         return False
 
+
 def bootstrap_security_assets():
-    # Inicializar UI Renderer
     from ui import ConsoleRenderer
     ui_renderer = ConsoleRenderer(theme_name=os.environ.get("FERDONAN_THEME", "refero"))
     from dotenv import load_dotenv
@@ -60,19 +60,16 @@ def bootstrap_security_assets():
             logger.info(f"Archivo de seguridad creado: {filepath}")
     return True
 
+
 def bootstrap_core():
     from dotenv import load_dotenv
     load_dotenv()
     bootstrap_security_assets()
-    # Inicializar UI Renderer
     from ui import ConsoleRenderer
     ui_renderer = ConsoleRenderer(theme_name=os.environ.get("FERDONAN_THEME", "refero"))
     
     core_config = {}
-    # Nota: La configuración YAML ha sido reemplazada por config.settings
-    # Si necesitas valores personalizados, edita .env o las variables de entorno
     
-    # Verificar Ollama antes de continuar
     if not check_ollama():
         print("\033[93m⚠️  Ollama no está disponible. Los agentes que usen Ollama fallarán.\033[0m")
         respuesta = input("\033[93m¿Continuar de todas formas? (s/N): \033[0m")
@@ -81,7 +78,6 @@ def bootstrap_core():
             sys.exit(1)
         print("\033[93mContinuando sin Ollama...\033[0m")
 
-    
     ingress = IngressFilter(global_regex_path=settings.INGRESS_BLACKLIST_PATH, enabled_layer2=False)
     egress = EgressFilter(settings.EGRESS_CMD_BLACKLIST_PATH, settings.EGRESS_TOOLS_BLACKLIST_PATH)
     semantic = SemanticOutputFilter(default_enabled=False)
@@ -94,7 +90,6 @@ def bootstrap_core():
                             gatekeeper=gatekeeper, cache=cache, ui_renderer=ui_renderer)
     engine.core_config = core_config
     
-    # Inicializar RAG Engine para indexación automática
     from services.vector_store import RAGEngine
     engine.rag_engine = RAGEngine()
     
@@ -116,7 +111,6 @@ def bootstrap_core():
                 manifest.long_term_memory = LongTermMemory(agent_id, engine.rag_engine)
                 manifest.llm_client = create_llm_client(agent_id, data, core_config)
 
-                # Cargar rutas del agente
                 routes_dir = os.path.join(path, "routes")
                 routes_list = []
                 if os.path.exists(routes_dir):
@@ -128,7 +122,6 @@ def bootstrap_core():
                                     routes_list.append(route_data)
                 manifest.routes_available = routes_list
                 
-                # Indexar documentos de la carpeta docs/ del agente si existe
                 docs_dir = os.path.join(path, "docs")
                 if os.path.exists(docs_dir) and engine.rag_engine:
                     for doc_file in os.listdir(docs_dir):
@@ -149,6 +142,7 @@ def bootstrap_core():
     
     return engine, loaded
 
+
 if __name__ == "__main__":
     engine, agents = bootstrap_core()
     generate_request_id()
@@ -157,37 +151,49 @@ if __name__ == "__main__":
         print("❌ No se encontraron agentes configurados.")
         sys.exit(1)
     
-    # Selección interactiva (menú con flechas)
     try:
         agent_manifest = select_agent_interactive(agents)
         if agent_manifest is None:
             print("👋 Selección cancelada. Saliendo...")
             sys.exit(0)
     except ImportError:
-        # Fallback a selector numérico si prompt_toolkit no está instalado
         print("⚠️ prompt_toolkit no instalado. Usando selector numérico.")
-        from ui.selector import select_agent
+        from ui.agent_selector import select_agent
         agent_manifest = select_agent(agents)
+        if agent_manifest is None:
+            sys.exit(0)
     
     print(f"[+] Agente Activo: {agent_manifest.name} ({agent_manifest.id})")
     print(f"[+] Concurrencia: {agent_manifest.execution_mode}")
     print(f"[+] Proveedor LLM: {agent_manifest.llm_provider.get('name', 'desconocido')}")
-    print("[+] Escribe 'salir' para finalizar.\n")
-    
+    print("[+] Escribe '/exit' para salir, '/help' para ayuda.\n")
+
     while True:
         try:
-            user_query = input(f"\n[{agent_manifest.id}] > ")
-            if user_query.strip().lower() == 'salir':
-                break
-            if not user_query.strip():
+            user_input = input(f"\n[{agent_manifest.id}] > ").strip()
+            if not user_input:
                 continue
-            
-            output, summary = engine.process_pipeline(agent_manifest, user_query)
+
+            if user_input.startswith('/'):
+                msg, new_agent, should_exit = process_slash_command(user_input, agents, agent_manifest)
+                print(msg)
+                if should_exit:
+                    break
+                if new_agent != agent_manifest:
+                    agent_manifest = new_agent
+                    print(f"[+] Cambiado al agente: {agent_manifest.name}")
+                continue
+
+            if user_input.lower() in ('salir', 'exit', 'quit'):
+                print("👋 ¡Hasta luego!")
+                break
+
+            output, summary = engine.process_pipeline(agent_manifest, user_input)
             print(f"\n[Enrutamiento Exitoso]")
             print(f" -> Ruta: {summary.get('route_id', 'unknown')}")
             print(f" -> Modo: {summary.get('execution_mode', 'exclusive')}")
             print(f" -> Respuesta:\n{output}")
-            
+
         except PermissionError as pe:
             print(f"\n[!] BLOQUEADO POR FIREWALL: {pe}")
         except RouteNotFoundError as exc:
@@ -202,29 +208,3 @@ if __name__ == "__main__":
         except Exception as e:
             print(f"[-] Error: {e}")
             logger.error(f"Error en pipeline: {e}", extra={"component": "main"})
-
-def select_agent(agents):
-    """Selecciona un agente de forma numérica (fallback si no hay prompt_toolkit)."""
-    agent_list = list(agents.values())
-    print("\n" + "=" * 60)
-    print("🎮 SELECCIÓN DE AGENTE")
-    print("=" * 60)
-    for i, agent in enumerate(agent_list, 1):
-        print(f"  {i}. {agent.name} (ID: {agent.id})")
-    print("  0. Salir")
-    print("=" * 60)
-    
-    while True:
-        try:
-            choice = input("\n👉 Elige un número: ").strip()
-            if choice == "0":
-                return None
-            idx = int(choice) - 1
-            if 0 <= idx < len(agent_list):
-                return agent_list[idx]
-            print(f"❌ Opción inválida. Elige entre 1 y {len(agent_list)}")
-        except ValueError:
-            print("❌ Por favor, ingresa un número válido")
-        except KeyboardInterrupt:
-            print("\n👋 Saliendo...")
-            return None

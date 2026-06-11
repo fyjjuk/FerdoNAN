@@ -9,7 +9,7 @@ import json
 import re
 from typing import Dict, Any, List, Tuple
 
-DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "data", "inventories")
+DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "workspace", "inventories")
 os.makedirs(DATA_DIR, exist_ok=True)
 
 def get_inventory_path(character_name: str) -> str:

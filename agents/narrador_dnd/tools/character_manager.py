@@ -10,7 +10,7 @@ import re
 from datetime import datetime
 from typing import Dict, Any
 
-DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "data", "characters")
+DATA_DIR = os.path.join(os.path.dirname(__file__), "..", "workspace", "characters")
 os.makedirs(DATA_DIR, exist_ok=True)
 
 def get_character_path(name: str) -> str:
