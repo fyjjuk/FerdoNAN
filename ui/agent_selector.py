@@ -37,8 +37,8 @@ def select_agent_interactive(agents):
             
             if choice.upper() == 'S':
                 # Mostrar menú de utilidades (scripts)
-                from ui.script_menu import run
-                run()
+                from ui.plugin_menu import display_plugin_menu
+                display_plugin_menu()
                 continue
             
             if choice == '0':
