@@ -3,7 +3,6 @@ from orchestration.resource_manager import ResourceScheduler
 from security.filters.ingress import IngressFilter
 from security.filters.egress import EgressFilter
 from security.filters.semantic import SemanticOutputFilter
-from persistence.cache import ResponseCache
 from core.pipeline import run_pipeline
 
 class FerdoNANEngine:
@@ -13,7 +12,7 @@ class FerdoNANEngine:
         self.egress = egress
         self.semantic = semantic
         self.scheduler = ResourceScheduler()
-        self.cache = cache if cache is not None else ResponseCache()
+        self.cache = cache
         self.gatekeeper = gatekeeper
         self.core_config = {}
         self.rag_engine = rag_engine

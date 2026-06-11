@@ -19,15 +19,15 @@ class LLMExecutor:
         self.agent = agent
         self.stage_executor = StageExecutor(agent)
     
-    def execute(self, agent, route_data: Dict[str, Any], 
-                cleaned_input: str, router, rag_engine) -> str:
+    def execute(self, agent, intent: Dict[str, Any], 
+                query: str, router, rag_engine) -> str:
         """
         Ejecuta una ruta, ya sea con stages o simple
         
         Args:
             agent: Manifiesto del agente
-            route_data: Datos de la ruta a ejecutar
-            cleaned_input: Input sanitizado del usuario
+            intent: Datos de la ruta a ejecutar
+            query: Input sanitizado del usuario
             router: Router para determinar necesidades
             rag_engine: Motor RAG para contexto
             
@@ -40,7 +40,7 @@ class LLMExecutor:
             core_config = agent.llm_client.core_config
         
         # Verificar si la ruta tiene stages
-        stages = route_data.get("stages")
+        stages = intent.get("stages")
         if stages:
             logger.info(f"Ejecutando ruta con {len(stages)} stages")
             context = {}
@@ -50,34 +50,34 @@ class LLMExecutor:
                 stage_name = stage.get("name", "unknown")
                 logger.debug(f"Ejecutando stage: {stage_name}")
                 output, context = self.stage_executor.execute_stage(
-                    stage, context, cleaned_input, core_config
+                    stage, context, query, core_config
                 )
                 final_output = output  # la última etapa será la respuesta final
             
             # Si hay una clave de salida específica en la ruta, usarla
-            final_key = route_data.get("final_output_key", "respuesta_final")
+            final_key = intent.get("final_output_key", "respuesta_final")
             if final_key in context:
                 return context[final_key]
             return final_output
         
         # Comportamiento original (sin stages)
-        enhanced_prompt = cleaned_input
+        enhanced_prompt = query
         
         # Inyectar contexto RAG si es necesario
-        if router.needs_rag_context(cleaned_input, agent) and rag_engine:
+        if router.needs_rag_context(query, agent) and rag_engine:
             try:
-                context_results = rag_engine.rag_query(agent.id, cleaned_input, top_k=3)
+                context_results = rag_engine.rag_query(agent.id, query, top_k=3)
                 if context_results and context_results.get('documents'):
                     context_text = "\n\n".join(context_results['documents'][0])
-                    enhanced_prompt = f"Contexto relevante:\n{context_text}\n\nConsulta: {cleaned_input}"
+                    enhanced_prompt = f"Contexto relevante:\n{context_text}\n\nConsulta: {query}"
                     logger.info(f"Contexto RAG inyectado ({len(context_text)} caracteres)")
             except Exception as e:
                 logger.warning(f"Error consultando RAG: {e}")
         
         # Obtener LLM y configurar
         llm = agent.llm_client
-        system_prompt = route_data.get("system_prompt", "Eres un asistente útil.")
-        llm_config = route_data.get("model_config", {})
+        system_prompt = intent.get("system_prompt", "Eres un asistente útil.")
+        llm_config = intent.get("model_config", {})
         
         # Inyectar timeout desde el agente si no está definido
         if "timeout" not in llm_config:
@@ -95,7 +95,7 @@ class LLMExecutor:
         else:
             # Streaming no disponible o desactivado, usar método normal
             output = llm.generate_response(enhanced_prompt, system_prompt, llm_config)
-            output = self._parse_tool_call(output, agent, route_data.get("tools_allowed", []))
+            output = self._parse_tool_call(output, agent, intent.get("tools_allowed", []))
             # Parsear tool calls
             return output
     

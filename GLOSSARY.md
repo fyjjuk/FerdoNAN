@@ -61,8 +61,8 @@ ferdonan/
 | Variable | Significado |
 |---|---|
 | `agent` | Instancia de un agente |
-| `intent` | Ruta seleccionada (antes `route_data`) |
-| `query` | Entrada del usuario saneada (antes `cleaned_input`) |
+| `intent` | Ruta seleccionada (antes `intent`) |
+| `query` | Entrada del usuario saneada (antes `query`) |
 | `available_tools` | Herramientas que el agente puede usar |
 | `orchestrator` | Coordinador principal (antes `engine`) |
 

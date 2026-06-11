@@ -140,8 +140,8 @@ class RouterInterface(Protocol):
 class ExecutorInterface(Protocol):
     """Interfaz para ejecutores de rutas."""
     
-    def execute(self, agent, route_data: Dict[str, Any], 
-                cleaned_input: str, router, rag_engine) -> str:
+    def execute(self, agent, intent: Dict[str, Any], 
+                query: str, router, rag_engine) -> str:
         """Ejecuta una ruta y retorna la respuesta."""
         ...
 

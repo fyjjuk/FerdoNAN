@@ -25,19 +25,19 @@ class Router:
             if filename.endswith(".yaml") or filename.endswith(".yml"):
                 filepath = os.path.join(routes_dir, filename)
                 with open(filepath, "r") as f:
-                    route_data = yaml.safe_load(f)
-                    if route_data and "route_id" in route_data:
+                    intent = yaml.safe_load(f)
+                    if intent and "route_id" in intent:
                         # Validar esquema
-                        is_valid, model, errors = validate_route(route_data)
+                        is_valid, model, errors = validate_route(intent)
                         if is_valid:
-                            routes.append(route_data)
+                            routes.append(intent)
                         else:
                             invalid_count += 1
-                            print(f"\033[93m⚠️ Ruta inválida en {agent_id}/{filename}: {route_data.get('route_id', 'unknown')}\033[0m")
+                            print(f"\033[93m⚠️ Ruta inválida en {agent_id}/{filename}: {intent.get('route_id', 'unknown')}\033[0m")
                             for error in errors[:3]:  # Mostrar hasta 3 errores
                                 print(f"\033[91m   - {error}\033[0m")
                             logger.warning(f"Ruta inválida en {agent_id}/{filename}: {errors}")
-                    elif route_data:
+                    elif intent:
                         print(f"\033[93m⚠️ Archivo {filename} no tiene 'route_id', omitido\033[0m")
         if invalid_count > 0:
             print(f"\033[93m⚠️ Agente {agent_id}: {invalid_count} rutas inválidas omitidas\033[0m")

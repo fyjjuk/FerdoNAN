@@ -78,13 +78,13 @@ class RouteModel(BaseModel):
     
     model_config = ConfigDict(extra='forbid')
 
-def validate_route(route_data: Dict[str, Any]) -> tuple[bool, Optional[RouteModel], List[str]]:
+def validate_route(intent: Dict[str, Any]) -> tuple[bool, Optional[RouteModel], List[str]]:
     """
     Valida una ruta y retorna (es_valido, modelo, lista_errores).
     """
     errors = []
     try:
-        model = RouteModel(**route_data)
+        model = RouteModel(**intent)
         return True, model, []
     except Exception as e:
         errors.append(str(e))

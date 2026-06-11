@@ -20,6 +20,6 @@ class BaseRouter(ABC):
             threshold: Umbral de confianza mínimo
             
         Returns:
-            Tuple con (route_id, confidence, route_data)
+            Tuple con (route_id, confidence, intent)
         """
         pass

@@ -22,3 +22,5 @@ router_config:
   mode: "hybrid"
   model: "phi3:mini"
   threshold: 0.3
+cache:
+  enabled: false

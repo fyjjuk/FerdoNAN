@@ -9,13 +9,17 @@ class RAGConfig(BaseModel):
 
 class RouterConfig(BaseModel):
     mode: Literal["keyword", "ollama", "embedding", "hybrid"] = "keyword"
-    model: Optional[str] = None  # ej. "tinyllama" para modo ollama
+    model: Optional[str] = None
     threshold: float = 0.3
 
 class SanitizerConfig(BaseModel):
     enabled: bool = True
-    use_llm: bool = False   # si True, usar modelo pequeño (requiere model)
+    use_llm: bool = False
     model: Optional[str] = None
+
+class CacheConfig(BaseModel):
+    enabled: bool = False
+    ttl: int = 3600
 
 class AgentManifest(BaseModel):
     id: str
@@ -23,10 +27,11 @@ class AgentManifest(BaseModel):
     description: str = ""
     short_term_memory_window: int = 5
     execution_mode: Literal["exclusive", "parallel"] = "exclusive"
-    execution_timeout: int = 30  # Timeout por defecto para ejecuciones de este agente
+    execution_timeout: int = 30
     rag_config: RAGConfig = Field(default_factory=RAGConfig)
     router_config: RouterConfig = Field(default_factory=RouterConfig)
     sanitizer_config: SanitizerConfig = Field(default_factory=SanitizerConfig)
+    cache_config: CacheConfig = Field(default_factory=CacheConfig)
     llm_provider: dict = Field(default_factory=dict)
     llm_client: Optional[Any] = None
     memory: Optional[Any] = None

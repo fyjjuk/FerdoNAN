@@ -9,15 +9,15 @@ class BaseExecutor(ABC):
     """Clase base para todos los ejecutores."""
     
     @abstractmethod
-    def execute(self, agent, route_data: Dict[str, Any], 
-                cleaned_input: str, router, rag_engine) -> str:
+    def execute(self, agent, intent: Dict[str, Any], 
+                query: str, router, rag_engine) -> str:
         """
         Ejecuta una ruta y retorna la respuesta.
         
         Args:
             agent: Manifiesto del agente
-            route_data: Datos de la ruta
-            cleaned_input: Input sanitizado
+            intent: Datos de la ruta
+            query: Input sanitizado
             router: Router para determinar necesidades
             rag_engine: Motor RAG para contexto
             

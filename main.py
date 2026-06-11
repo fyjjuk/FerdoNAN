@@ -83,9 +83,9 @@ def bootstrap_core():
     semantic = SemanticOutputFilter(default_enabled=False)
     
     from security.auth.gatekeeper import Gatekeeper
-    from persistence.cache import ResponseCache
+    
     gatekeeper = Gatekeeper(default_timeout=settings.GATEKEEPER_TIMEOUT, force_all=settings.GATEKEEPER_FORCE_ALL, ui_renderer=ui_renderer)
-    cache = ResponseCache()
+    cache = None  # Caché deshabilitado por defecto
     engine = FerdoNANEngine(ingress=ingress, egress=egress, semantic=semantic,
                             gatekeeper=gatekeeper, cache=cache, ui_renderer=ui_renderer)
     engine.core_config = core_config
@@ -117,9 +117,9 @@ def bootstrap_core():
                     for route_file in os.listdir(routes_dir):
                         if route_file.endswith((".yaml", ".yml")):
                             with open(os.path.join(routes_dir, route_file), "r") as rf:
-                                route_data = yaml.safe_load(rf)
-                                if route_data and "route_id" in route_data:
-                                    routes_list.append(route_data)
+                                intent = yaml.safe_load(rf)
+                                if intent and "route_id" in intent:
+                                    routes_list.append(intent)
                 manifest.routes_available = routes_list
                 
                 docs_dir = os.path.join(path, "docs")

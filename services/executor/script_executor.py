@@ -9,15 +9,15 @@ from .base import BaseExecutor
 class ScriptExecutor(BaseExecutor):
     """Ejecuta rutas de script (herramientas nativas del agente)."""
     
-    def execute(self, agent, route_data: Dict[str, Any], cleaned_input: str, router, rag_engine) -> str:
-        script_path = route_data.get("script_path")
-        script_args = route_data.get("script_args", {})
+    def execute(self, agent, intent: Dict[str, Any], query: str, router, rag_engine) -> str:
+        script_path = intent.get("script_path")
+        script_args = intent.get("script_args", {})
         
         # Reemplazar placeholders en script_args
         processed_args = {}
         for key, value in script_args.items():
             if isinstance(value, str) and "{user_input}" in value:
-                processed_args[key] = value.replace("{user_input}", cleaned_input)
+                processed_args[key] = value.replace("{user_input}", query)
             else:
                 processed_args[key] = value
         
@@ -39,7 +39,7 @@ class ScriptExecutor(BaseExecutor):
                 args_str = json.dumps(processed_args)
                 result = subprocess.run(["python", full_path, args_str], capture_output=True, text=True, timeout=10)
             else:
-                result = subprocess.run(["python", full_path, cleaned_input], capture_output=True, text=True, timeout=10)
+                result = subprocess.run(["python", full_path, query], capture_output=True, text=True, timeout=10)
             
             output = result.stdout.strip() if result.returncode == 0 else f"Error: {result.stderr}"
             return output

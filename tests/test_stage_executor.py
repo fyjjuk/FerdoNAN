@@ -51,12 +51,12 @@ class TestStageExecutor:
             "output_key": "test_output"
         }
         context = {}
-        cleaned_input = "Hello, world!"
+        query = "Hello, world!"
         core_config = {}
         
         self.mock_agent.llm_client.generate_response.return_value = "Generated response"
         
-        output, new_context = self.runner.execute_stage(stage_config, context, cleaned_input, core_config)
+        output, new_context = self.runner.execute_stage(stage_config, context, query, core_config)
         
         assert output == "Generated response"
         assert "test_output" in new_context
@@ -71,12 +71,12 @@ class TestStageExecutor:
             "output_key": "test_output"
         }
         context = {"previous": "value"}
-        cleaned_input = "User query"
+        query = "User query"
         core_config = {}
         
         self.mock_agent.llm_client.generate_response.return_value = "Response with context"
         
-        output, new_context = self.runner.execute_stage(stage_config, context, cleaned_input, core_config)
+        output, new_context = self.runner.execute_stage(stage_config, context, query, core_config)
         
         # Verificar que el prompt se formateó correctamente
         call_args = self.mock_agent.llm_client.generate_response.call_args[0]
@@ -92,13 +92,13 @@ class TestStageExecutor:
             "output_key": "test_output"
         }
         context = {}
-        cleaned_input = "test"
+        query = "test"
         core_config = {}
         
         # Primera llamada retorna None (inválido), segunda retorna string válido
         self.mock_agent.llm_client.generate_response.side_effect = [None, "Valid after retry"]
         
-        output, new_context = self.runner.execute_stage(stage_config, context, cleaned_input, core_config)
+        output, new_context = self.runner.execute_stage(stage_config, context, query, core_config)
         
         assert output == "Valid after retry"
         assert self.mock_agent.llm_client.generate_response.call_count == 2
@@ -112,12 +112,12 @@ class TestStageExecutor:
             "output_key": "test_output"
         }
         context = {}
-        cleaned_input = "test"
+        query = "test"
         core_config = {}
         
         self.mock_agent.llm_client.generate_response.side_effect = Exception("LLM Error")
         
-        output, new_context = self.runner.execute_stage(stage_config, context, cleaned_input, core_config)
+        output, new_context = self.runner.execute_stage(stage_config, context, query, core_config)
         
         assert "Error: LLM Error" in output
         assert "test_output" in new_context
@@ -132,10 +132,10 @@ class TestStageExecutor:
             "output_key": "tool_output"
         }
         context = {}
-        cleaned_input = "ignored for tools"
+        query = "ignored for tools"
         core_config = {}
         
-        output, new_context = self.runner.execute_stage(stage_config, context, cleaned_input, core_config)
+        output, new_context = self.runner.execute_stage(stage_config, context, query, core_config)
         
         assert "Tool web_search executed" in output
         assert "tool_output" in new_context

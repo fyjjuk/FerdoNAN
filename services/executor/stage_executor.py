@@ -15,28 +15,28 @@ class StageExecutor:
         self.agent = agent
     
     def execute_stage(self, stage_config: Dict, context: Dict, 
-                      cleaned_input: str, core_config: Dict) -> Tuple[str, Dict]:
+                      query: str, core_config: Dict) -> Tuple[str, Dict]:
         """Ejecuta un stage individual (LLM o tool)"""
         stage_type = stage_config.get("type", "llm")
         stage_name = stage_config.get("name", "unknown")
         output_key = stage_config.get("output_key", "output")
         
         if stage_type == "llm":
-            return self._execute_llm_stage(stage_config, context, cleaned_input, core_config, stage_name, output_key)
+            return self._execute_llm_stage(stage_config, context, query, core_config, stage_name, output_key)
         elif stage_type == "tool":
             return self._execute_tool_stage(stage_config, output_key)
         else:
-            context[output_key] = cleaned_input
-            return cleaned_input, context
+            context[output_key] = query
+            return query, context
     
     def _execute_llm_stage(self, stage_config: Dict, context: Dict, 
-                           cleaned_input: str, core_config: Dict,
+                           query: str, core_config: Dict,
                            stage_name: str, output_key: str) -> Tuple[str, Dict]:
         """Ejecuta un stage de tipo LLM"""
         prompt_template = stage_config.get("prompt", "{{input}}")
         formatted_prompt = prompt_template
         if "{{input}}" in prompt_template:
-            formatted_prompt = prompt_template.replace("{{input}}", cleaned_input)
+            formatted_prompt = prompt_template.replace("{{input}}", query)
         if "{{context}}" in prompt_template:
             formatted_prompt = formatted_prompt.replace("{{context}}", str(context))
         

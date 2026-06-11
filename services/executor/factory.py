@@ -3,8 +3,8 @@ from .base import BaseExecutor
 from .llm_executor import LLMExecutor
 from .script_executor import ScriptExecutor
 
-def create_executor(route_data: Dict[str, Any], agent=None) -> BaseExecutor:
-    route_type = route_data.get("type", "cognitive")
+def create_executor(intent: Dict[str, Any], agent=None) -> BaseExecutor:
+    route_type = intent.get("type", "cognitive")
     if route_type == "cognitive":
         if agent is None:
             raise ValueError("agent es requerido para LLMExecutor")
