@@ -7,8 +7,8 @@ import sys
 sys.modules['tqdm'] = __import__('tqdm')
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning, module="huggingface_hub")
-from models.manifest import AgentManifest
-from core.engine import FerdoNANEngine
+from models.agent_manifest import AgentManifest
+from core.orchestrator import FerdoNANEngine
 from persistence.memory_store import ShortTermMemory
 from persistence.long_term_memory import LongTermMemory
 from core.tracing import generate_request_id

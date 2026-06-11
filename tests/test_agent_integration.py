@@ -5,8 +5,8 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import pytest
 import yaml
-from models.manifest import AgentManifest
-from core.engine import FerdoNANEngine
+from models.agent_manifest import AgentManifest
+from core.orchestrator import FerdoNANEngine
 from core.llm_factory import create_llm_client
 from security.filters.ingress import IngressFilter
 from security.filters.egress import EgressFilter

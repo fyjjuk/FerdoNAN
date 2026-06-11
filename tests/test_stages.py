@@ -5,7 +5,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import pytest
 from unittest.mock import Mock
 
-from services.executor.cognitive import CognitiveExecutor
+from services.executor.cognitive import LLMExecutor
 
 class MockLLMClient:
     def __init__(self):
@@ -21,7 +21,7 @@ class MockManifest:
 
 @pytest.fixture
 def executor():
-    return CognitiveExecutor()
+    return LLMExecutor()
 
 @pytest.fixture
 def mock_manifest():

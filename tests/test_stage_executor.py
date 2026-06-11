@@ -1,19 +1,19 @@
 """
-Tests para services/executor/stage_runner.py
+Tests para services/executor/stage_executor.py
 """
 import pytest
 from unittest.mock import Mock, patch, MagicMock
-from services.executor.stage_runner import StageRunner
+from services.executor.stage_executor import StageExecutor
 
 
-class TestStageRunner:
-    """Pruebas para StageRunner"""
+class TestStageExecutor:
+    """Pruebas para StageExecutor"""
     
     def setup_method(self):
         """Configuración inicial para cada test"""
         self.mock_agent = Mock()
         self.mock_agent.llm_client = Mock()
-        self.runner = StageRunner(self.mock_agent)
+        self.runner = StageExecutor(self.mock_agent)
     
     def test_validate_stage_output_valid(self):
         """Verificar validación de output válido"""

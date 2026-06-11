@@ -5,19 +5,19 @@ Cognitive Executor - Ejecución de rutas con stages y soporte de streaming
 import logging
 from typing import Dict, Any
 
-from .stage_runner import StageRunner
+from .stage_executor import StageExecutor
 from .streaming import StreamHandler
 
 logger = logging.getLogger(__name__)
 
 
-class CognitiveExecutor:
+class LLMExecutor:
     """Ejecutor cognitivo para rutas con stages y streaming"""
     
     def __init__(self, agent_manifest):
         """Inicializa el ejecutor con el manifiesto del agente"""
         self.agent_manifest = agent_manifest
-        self.stage_runner = StageRunner(agent_manifest)
+        self.stage_executor = StageExecutor(agent_manifest)
     
     def execute(self, agent_manifest, route_data: Dict[str, Any], 
                 cleaned_input: str, router, rag_engine) -> str:
@@ -49,7 +49,7 @@ class CognitiveExecutor:
             for stage in stages:
                 stage_name = stage.get("name", "unknown")
                 logger.debug(f"Ejecutando stage: {stage_name}")
-                output, context = self.stage_runner.execute_stage(
+                output, context = self.stage_executor.execute_stage(
                     stage, context, cleaned_input, core_config
                 )
                 final_output = output  # la última etapa será la respuesta final

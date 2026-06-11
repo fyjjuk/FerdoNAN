@@ -57,10 +57,10 @@ class TestInterfaces:
     
     def test_executor_implements_interface(self):
         """Verificar que ejecutores implementan la interfaz."""
-        from services.executor.cognitive import CognitiveExecutor
+        from services.executor.cognitive import LLMExecutor
         from services.executor.script import ScriptExecutor
         
-        assert hasattr(CognitiveExecutor, 'execute')
+        assert hasattr(LLMExecutor, 'execute')
         assert hasattr(ScriptExecutor, 'execute')
     
     def test_sanitizer_implements_interface(self):

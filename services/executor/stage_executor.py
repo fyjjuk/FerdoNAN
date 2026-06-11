@@ -8,7 +8,7 @@ from typing import Dict, Any, Tuple
 logger = logging.getLogger(__name__)
 
 
-class StageRunner:
+class StageExecutor:
     """Responsable de ejecutar stages individuales y validar sus salidas"""
     
     def __init__(self, agent_manifest):

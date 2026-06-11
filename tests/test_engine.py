@@ -5,7 +5,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import pytest
 from unittest.mock import Mock, patch
-from core.engine import FerdoNANEngine
+from core.orchestrator import FerdoNANEngine
 from security.filters.ingress import IngressFilter
 from security.filters.egress import EgressFilter
 from security.filters.semantic import SemanticOutputFilter
