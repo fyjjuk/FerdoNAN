@@ -128,7 +128,7 @@ class RouterInterface(Protocol):
         """Enruta una consulta a la ruta más adecuada."""
         ...
     
-    def needs_rag_context(self, query: str, agent_manifest) -> bool:
+    def needs_rag_context(self, query: str, agent) -> bool:
         """Determina si se necesita contexto RAG."""
         ...
 
@@ -140,7 +140,7 @@ class RouterInterface(Protocol):
 class ExecutorInterface(Protocol):
     """Interfaz para ejecutores de rutas."""
     
-    def execute(self, agent_manifest, route_data: Dict[str, Any], 
+    def execute(self, agent, route_data: Dict[str, Any], 
                 cleaned_input: str, router, rag_engine) -> str:
         """Ejecuta una ruta y retorna la respuesta."""
         ...

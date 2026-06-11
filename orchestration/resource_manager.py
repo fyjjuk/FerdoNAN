@@ -69,13 +69,13 @@ class ResourceScheduler:
         
         return metrics
     
-    def can_run_parallel(self, agent_manifest) -> Tuple[bool, str]:
+    def can_run_parallel(self, agent) -> Tuple[bool, str]:
         """
         Determina si el agente puede ejecutarse en modo parallel.
         Retorna (bool, razón) para logging.
         """
-        if agent_manifest.execution_mode != "parallel":
-            return False, f"Modo del agente: {agent_manifest.execution_mode}"
+        if agent.execution_mode != "parallel":
+            return False, f"Modo del agente: {agent.execution_mode}"
         
         metrics = self.get_system_metrics()
         ram_ok = metrics["ram_percent"] < (self.vram_threshold * 100)

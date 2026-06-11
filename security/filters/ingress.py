@@ -23,15 +23,15 @@ class IngressFilter:
             logger.error(f"Error cargando blacklist RegEx global: {str(e)}")
             return []
 
-    def evaluate(self, user_input: str, agent_manifest) -> bool:
+    def evaluate(self, user_input: str, agent) -> bool:
         # Obtener ID del agente (puede ser objeto o dict por compatibilidad)
-        if hasattr(agent_manifest, 'id'):
-            user_id = agent_manifest.id
-            firewall_override = getattr(agent_manifest, 'firewall_override', {})
+        if hasattr(agent, 'id'):
+            user_id = agent.id
+            firewall_override = getattr(agent, 'firewall_override', {})
         else:
             # Fallback por si se pasa dict (compatibilidad)
-            user_id = agent_manifest.get("id", "default")
-            firewall_override = agent_manifest.get("firewall_override", {})
+            user_id = agent.get("id", "default")
+            firewall_override = agent.get("firewall_override", {})
         
         # Rate limiting
         if not self.rate_limiter.is_allowed(user_id):

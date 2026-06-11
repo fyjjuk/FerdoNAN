@@ -43,8 +43,8 @@ class Router:
             print(f"\033[93m⚠️ Agente {agent_id}: {invalid_count} rutas inválidas omitidas\033[0m")
         return routes
 
-    def needs_rag_context(self, query: str, agent_manifest=None) -> bool:
-        return agent_manifest.rag_config.enabled if agent_manifest and hasattr(agent_manifest, "rag_config") else False
+    def needs_rag_context(self, query: str, agent=None) -> bool:
+        return agent.rag_config.enabled if agent and hasattr(agent, "rag_config") else False
 
     def route(self, agent_id: str, user_input: str, threshold: Optional[float] = None) -> Tuple[str, float, Dict]:
         routes = self._load_agent_routes(agent_id)

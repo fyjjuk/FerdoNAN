@@ -9,7 +9,7 @@ from .base import BaseExecutor
 class ScriptExecutor(BaseExecutor):
     """Ejecuta rutas de script (herramientas nativas del agente)."""
     
-    def execute(self, agent_manifest, route_data: Dict[str, Any], cleaned_input: str, router, rag_engine) -> str:
+    def execute(self, agent, route_data: Dict[str, Any], cleaned_input: str, router, rag_engine) -> str:
         script_path = route_data.get("script_path")
         script_args = route_data.get("script_args", {})
         
@@ -24,7 +24,7 @@ class ScriptExecutor(BaseExecutor):
         # Construir ruta absoluta al script dentro del agente
         if script_path and not os.path.isabs(script_path):
             # Buscar primero en el directorio del agente
-            agent_dir = os.path.join("agents", agent_manifest.id)
+            agent_dir = os.path.join("agents", agent.id)
             full_path = os.path.join(agent_dir, script_path)
             
             if not os.path.exists(full_path):

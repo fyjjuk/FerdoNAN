@@ -11,8 +11,8 @@ logger = logging.getLogger(__name__)
 class StageExecutor:
     """Responsable de ejecutar stages individuales y validar sus salidas"""
     
-    def __init__(self, agent_manifest):
-        self.agent_manifest = agent_manifest
+    def __init__(self, agent):
+        self.agent = agent
     
     def execute_stage(self, stage_config: Dict, context: Dict, 
                       cleaned_input: str, core_config: Dict) -> Tuple[str, Dict]:
@@ -43,7 +43,7 @@ class StageExecutor:
         system_prompt = stage_config.get("system_prompt", "Eres un asistente útil.")
         llm_config = stage_config.get("model_config", {})
         provider_name = stage_config.get("provider", "ollama")
-        llm = self.agent_manifest.llm_client
+        llm = self.agent.llm_client
         
         logger.info(f"Ejecutando stage '{stage_name}' con proveedor: {provider_name}")
         

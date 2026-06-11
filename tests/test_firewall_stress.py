@@ -27,12 +27,12 @@ class TestIngressFilter:
         blacklist.write_text("rm -rf\nsudo\npasswd\n")
         
         ingress = IngressFilter(str(blacklist), enabled_layer2=False)
-        agent_manifest = {"id": "test", "firewall_override": {}}
+        agent = {"id": "test", "firewall_override": {}}
         
-        assert ingress.evaluate("rm -rf /home", agent_manifest) is False
-        assert ingress.evaluate("sudo apt update", agent_manifest) is False
-        assert ingress.evaluate("passwd", agent_manifest) is False
-        assert ingress.evaluate("comando seguro", agent_manifest) is True
+        assert ingress.evaluate("rm -rf /home", agent) is False
+        assert ingress.evaluate("sudo apt update", agent) is False
+        assert ingress.evaluate("passwd", agent) is False
+        assert ingress.evaluate("comando seguro", agent) is True
 
     def test_layer1_blocks_agent_specific_patterns(self, tmp_path):
         """Capa 1: puede tener blacklist específica por agente."""
@@ -40,7 +40,7 @@ class TestIngressFilter:
         blacklist.write_text("global_bad\n")
         
         ingress = IngressFilter(str(blacklist), enabled_layer2=False)
-        agent_manifest = {
+        agent = {
             "id": "test",
             "firewall_override": {
                 "ingress": {
@@ -51,9 +51,9 @@ class TestIngressFilter:
             }
         }
         
-        assert ingress.evaluate("global_bad", agent_manifest) is False
-        assert ingress.evaluate("agent_specific_bad", agent_manifest) is False
-        assert ingress.evaluate("safe_text", agent_manifest) is True
+        assert ingress.evaluate("global_bad", agent) is False
+        assert ingress.evaluate("agent_specific_bad", agent) is False
+        assert ingress.evaluate("safe_text", agent) is True
 
     def test_rate_limiter_blocks_excessive_requests(self, tmp_path):
         """Rate limiter: debe bloquear cuando se excede el límite."""
@@ -61,14 +61,14 @@ class TestIngressFilter:
         blacklist.write_text("")
         
         ingress = IngressFilter(str(blacklist), enabled_layer2=False)
-        agent_manifest = {"id": "test_user", "firewall_override": {}}
+        agent = {"id": "test_user", "firewall_override": {}}
         
         # 100 requests should be allowed (max_requests=100)
         for i in range(100):
-            assert ingress.evaluate(f"request_{i}", agent_manifest) is True
+            assert ingress.evaluate(f"request_{i}", agent) is True
         
         # The 101st should be blocked
-        assert ingress.evaluate("request_101", agent_manifest) is False
+        assert ingress.evaluate("request_101", agent) is False
 
     def test_rate_limiter_resets_after_window(self):
         """Rate limiter: debe resetear después de la ventana de tiempo."""
@@ -233,14 +233,14 @@ class TestIntegrationSecurityPipeline:
         ingress = IngressFilter(str(ingress_bl), enabled_layer2=False)
         egress = EgressFilter(str(egress_cmd), str(egress_tool))
         
-        agent_manifest = {"id": "test", "firewall_override": {}}
+        agent = {"id": "test", "firewall_override": {}}
         route_config = {"firewall": {"egress_filter_enabled": True}}
         
         # Entrada peligrosa debe ser bloqueada
-        assert ingress.evaluate("delete_all", agent_manifest) is False
+        assert ingress.evaluate("delete_all", agent) is False
         
         # Entrada segura pasa
-        assert ingress.evaluate("texto seguro", agent_manifest) is True
+        assert ingress.evaluate("texto seguro", agent) is True
         
         # Salida peligrosa debe ser bloqueada
         assert egress.evaluate("rm -rf /", route_config) is False

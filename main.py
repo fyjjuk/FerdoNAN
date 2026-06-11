@@ -152,43 +152,43 @@ if __name__ == "__main__":
         sys.exit(1)
     
     try:
-        agent_manifest = select_agent_interactive(agents)
-        if agent_manifest is None:
+        agent = select_agent_interactive(agents)
+        if agent is None:
             print("👋 Selección cancelada. Saliendo...")
             sys.exit(0)
     except ImportError:
         print("⚠️ prompt_toolkit no instalado. Usando selector numérico.")
         from ui.agent_selector import select_agent
-        agent_manifest = select_agent(agents)
-        if agent_manifest is None:
+        agent = select_agent(agents)
+        if agent is None:
             sys.exit(0)
     
-    print(f"[+] Agente Activo: {agent_manifest.name} ({agent_manifest.id})")
-    print(f"[+] Concurrencia: {agent_manifest.execution_mode}")
-    print(f"[+] Proveedor LLM: {agent_manifest.llm_provider.get('name', 'desconocido')}")
+    print(f"[+] Agente Activo: {agent.name} ({agent.id})")
+    print(f"[+] Concurrencia: {agent.execution_mode}")
+    print(f"[+] Proveedor LLM: {agent.llm_provider.get('name', 'desconocido')}")
     print("[+] Escribe '/exit' para salir, '/help' para ayuda.\n")
 
     while True:
         try:
-            user_input = input(f"\n[{agent_manifest.id}] > ").strip()
+            user_input = input(f"\n[{agent.id}] > ").strip()
             if not user_input:
                 continue
 
             if user_input.startswith('/'):
-                msg, new_agent, should_exit = process_slash_command(user_input, agents, agent_manifest)
+                msg, new_agent, should_exit = process_slash_command(user_input, agents, agent)
                 print(msg)
                 if should_exit:
                     break
-                if new_agent != agent_manifest:
-                    agent_manifest = new_agent
-                    print(f"[+] Cambiado al agente: {agent_manifest.name}")
+                if new_agent != agent:
+                    agent = new_agent
+                    print(f"[+] Cambiado al agente: {agent.name}")
                 continue
 
             if user_input.lower() in ('salir', 'exit', 'quit'):
                 print("👋 ¡Hasta luego!")
                 break
 
-            output, summary = engine.process_pipeline(agent_manifest, user_input)
+            output, summary = engine.process_pipeline(agent, user_input)
             print(f"\n[Enrutamiento Exitoso]")
             print(f" -> Ruta: {summary.get('route_id', 'unknown')}")
             print(f" -> Modo: {summary.get('execution_mode', 'exclusive')}")

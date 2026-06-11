@@ -48,7 +48,7 @@ class TestPipeline:
             
             with pytest.raises(PermissionError, match="Entrada bloqueada por Firewall Ingress"):
                 run_pipeline(
-                    agent_manifest=self.mock_agent,
+                    agent=self.mock_agent,
                     raw_input="bad input",
                     ingress=self.mock_ingress,
                     egress=self.mock_egress,
@@ -88,7 +88,7 @@ class TestPipeline:
             self.mock_egress.evaluate.return_value = False
             
             result, metadata = run_pipeline(
-                agent_manifest=self.mock_agent,
+                agent=self.mock_agent,
                 raw_input="input",
                 ingress=self.mock_ingress,
                 egress=self.mock_egress,
@@ -128,7 +128,7 @@ class TestPipeline:
             
             with pytest.raises(PermissionError, match="Acción rechazada por Gatekeeper"):
                 run_pipeline(
-                    agent_manifest=self.mock_agent,
+                    agent=self.mock_agent,
                     raw_input="input",
                     ingress=self.mock_ingress,
                     egress=self.mock_egress,
