@@ -1,32 +1,33 @@
 id: "narrador_dnd"
-name: "Narrador de D&D - Creador de Historias"
-description: "Agente especializado en generar tramas épicas, personajes no jugadores, encuentros de combate, tesoros, mazmorras y chispa creativa para partidas de Dungeons & Dragons 5e. Utiliza memoria de largo plazo para recordar la historia de la campaña."
-short_term_memory_window: 15
+name: "Narrador de D&D - Director de Juego"
+description: "Director de juego con espacio de trabajo propio. Gestiona personajes, inventarios y campañas."
+short_term_memory_window: 20
 execution_mode: "parallel"
 llm_provider:
   name: "ollama"
   model: "llama3.2:3b"
-  temperature: 0.8
-  max_tokens: 2048
+  temperature: 0.7
+  max_tokens: 4096
 rag_config:
   enabled: true
   namespace: "dnd_lore"
-  top_k: 3
+  top_k: 5
   similarity_threshold: 0.7
 tools:
   native:
-    - name: "spotify_control"
-      script: "tools/native/spotify_control.py"
+    - name: "character_sheet"
+      script: "tools/character_sheet.py"
       enabled: true
-    - name: "spotify_playlist"
-      script: "tools/native/spotify_playlist.py"
+    - name: "excel_manager"
+      script: "tools/excel_manager.py"
       enabled: true
-
+    - name: "campaign_manager"
+      script: "tools/campaign_manager.py"
+      enabled: true
 router_config:
   mode: "hybrid"
   model: "phi3:mini"
   threshold: 0.3
-
 sanitizer_config:
   enabled: true
   use_llm: false

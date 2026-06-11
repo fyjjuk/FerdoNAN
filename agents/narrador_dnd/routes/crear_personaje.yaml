@@ -1,0 +1,8 @@
+route_id: "crear_personaje"
+type: "script"
+description: "crear personaje,nuevo personaje,crear npc"
+script_path: "tools/character_sheet.py"
+script_args:
+  action: "create"
+  name: "{user_input}"
+gatekeeper_required: false

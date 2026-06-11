@@ -1,0 +1,9 @@
+route_id: "anadir_item"
+type: "script"
+description: "anadir item,agregar objeto,nuevo item"
+script_path: "tools/excel_manager.py"
+script_args:
+  action: "add"
+  item: "{user_input}"
+  quantity: 1
+gatekeeper_required: false

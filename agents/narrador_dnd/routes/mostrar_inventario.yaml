@@ -1,0 +1,7 @@
+route_id: "mostrar_inventario"
+type: "script"
+description: "mostrar inventario,ver inventario,que tenemos"
+script_path: "tools/excel_manager.py"
+script_args:
+  action: "show"
+gatekeeper_required: false
