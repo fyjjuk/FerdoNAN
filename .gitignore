@@ -64,3 +64,7 @@ docs/make.bat
 node_modules/
 package-lock.json
 package.json
+
+# Caché por agente
+agents/*/cache/
+agents/*/workspace/
