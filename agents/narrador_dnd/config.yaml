@@ -15,14 +15,17 @@ rag_config:
   similarity_threshold: 0.7
 tools:
   native:
-    - name: "character_sheet"
-      script: "tools/character_sheet.py"
+    - name: "character_manager"
+      script: "tools/character_manager.py"
       enabled: true
-    - name: "excel_manager"
-      script: "tools/excel_manager.py"
+    - name: "inventory_manager"
+      script: "tools/inventory_manager.py"
       enabled: true
     - name: "campaign_manager"
       script: "tools/campaign_manager.py"
+      enabled: true
+    - name: "spotify_playlist"
+      script: "tools/spotify_playlist.py"
       enabled: true
 router_config:
   mode: "hybrid"
