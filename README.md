@@ -1,13 +1,13 @@
 # FerdoNAN - Asistente Personal Multi-Agente con IA
 
-**Versión:** 2.4.1 (Comandos slash, reestructuración de UI)  
+**Versión:** 2.5.0 (Comandos slash, reestructuración de UI)  
 **Estado:** Producción estable | **Arquitectura:** Hexagonal + Plugins
 
 ## Descripción General
 
 FerdoNAN es un framework modular para asistentes de IA basado en agentes especializados, diseñado bajo principios de **bajo acoplamiento** y **alta cohesión**. Cada agente opera con su propio modelo de lenguaje, configuración de seguridad y capacidades, mientras que el núcleo (`core/`) proporciona servicios de orquestación, enrutamiento, ejecución y seguridad multicapa.
 
-**Novedades v2.4.1:**
+**Novedades v2.5.0:**
 - Comandos slash (`/help`, `/exit`, `/agent list`, `/agent switch`, `/config show`, `/clear`)
 - Reestructuración de UI: comandos reutilizables en `ui/cli_commands.py`
 - Selector de agentes renombrado a `ui/agent_selector.py`
@@ -33,7 +33,7 @@ flowchart LR
     CLI --> CMDS[CLI Commands]
 ```
 
-## Estructura del Proyecto (v2.4.1)
+## Estructura del Proyecto (v2.5.0)
 
 ```
 ferdonan/

@@ -3,7 +3,7 @@ import yaml
 from typing import List, Dict, Any, Tuple, Optional
 from core.logger import logger
 from services.router.factory import create_router
-from models.route_models import validate_route
+from models.intent_models import validate_route
 
 class RouteNotFoundError(Exception):
     def __init__(self, message: str, available_routes: List[Dict[str, Any]]):
