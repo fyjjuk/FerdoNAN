@@ -23,7 +23,7 @@ class VoiceAssistant:
                               model_path='models/vosk/vosk-model-small-es-0.42',
                               samplerate=48000,
                               device=None)
-        self.tts = create_tts('mimic3', default_voice='es', speed=180, pitch=65)
+        self.tts = create_tts('edge', default_voice='es-ES-ElviraNeural', speed=180, pitch=65)
         
         self.hotkey_listener = GlobalHotkeyListener(
             self.start_recording,
